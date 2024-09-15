@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
+	"tender_api/src/internal/converter"
 	"tender_api/src/internal/model"
 	def "tender_api/src/internal/server/http"
 	"tender_api/src/internal/server/http/v1/requests/tender"
@@ -45,7 +46,7 @@ func (controller *tenderController) GetList(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, tenders)
+	return ctx.JSON(http.StatusOK, converter.ToTenderViewsFromTender(tenders))
 }
 
 func (controller *tenderController) GetMy(ctx echo.Context) error {
@@ -70,7 +71,7 @@ func (controller *tenderController) GetMy(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, tenders)
+	return ctx.JSON(http.StatusOK, converter.ToTenderViewsFromTender(tenders))
 }
 
 func (controller *tenderController) GetStatus(ctx echo.Context) error {
@@ -119,7 +120,7 @@ func (controller *tenderController) Create(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusCreated, created)
+	return ctx.JSON(http.StatusCreated, converter.ToTenderViewFromTender(*created))
 }
 
 func (controller *tenderController) UpdateStatus(ctx echo.Context) error {
@@ -144,7 +145,7 @@ func (controller *tenderController) UpdateStatus(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, updated)
+	return ctx.JSON(http.StatusOK, converter.ToTenderViewFromTender(*updated))
 }
 
 func (controller *tenderController) Rollback(ctx echo.Context) error {
@@ -175,7 +176,7 @@ func (controller *tenderController) Rollback(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, updated)
+	return ctx.JSON(http.StatusOK, converter.ToTenderViewFromTender(*updated))
 }
 
 func (controller *tenderController) Edit(ctx echo.Context) error {
@@ -205,5 +206,5 @@ func (controller *tenderController) Edit(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, updated)
+	return ctx.JSON(http.StatusOK, converter.ToTenderViewFromTender(*updated))
 }

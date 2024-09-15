@@ -45,3 +45,39 @@ func ToBidRecordFromBid(bid model.Bid) goqu.Record {
 
 	return record
 }
+
+func ToBidViewFromBid(bid model.Bid) model.BidView {
+	return model.BidView{
+		ID:         bid.ID,
+		Name:       bid.Name,
+		Status:     bid.Status,
+		AuthorType: bid.AuthorType,
+		AuthorID:   bid.AuthorID,
+		Version:    bid.Version,
+		CreatedAt:  bid.CreatedAt,
+	}
+}
+
+func ToBidViewsFromBid(bids []model.Bid) []model.BidView {
+	views := make([]model.BidView, 0, len(bids))
+	for _, bid := range bids {
+		views = append(views, ToBidViewFromBid(bid))
+	}
+	return views
+}
+
+func ToBidReviewViewFromBidReview(review model.BidReview) model.BidReviewView {
+	return model.BidReviewView{
+		ID:          review.ID,
+		Description: review.Description,
+		CreatedAt:   review.CreatedAt,
+	}
+}
+
+func ToBidReviewViewsFromBidReview(reviews []model.BidReview) []model.BidReviewView {
+	views := make([]model.BidReviewView, 0, len(reviews))
+	for _, review := range reviews {
+		views = append(views, ToBidReviewViewFromBidReview(review))
+	}
+	return views
+}
