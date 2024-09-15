@@ -10,3 +10,9 @@ docker-run:
 docker-stop:
 	docker stop $(shell docker ps -q --filter "ancestor=$(DOCKER_IMAGE_NAME)")
 	docker rm $(shell docker ps -a -q --filter "ancestor=$(DOCKER_IMAGE_NAME)")
+
+run:
+	go run ./src/cmd/api/main.go
+
+test:
+	venom run testsuite.yml

@@ -36,7 +36,11 @@ func (controller *tenderController) GetList(ctx echo.Context) error {
 	}
 
 	context := ctx.Request().Context()
-	tenders, err := controller.tenderService.GetList(context, request.Limit, request.Offset, request.ServiceType)
+	tenders, err := controller.tenderService.GetList(
+		context,
+		uint(request.Limit),
+		uint(request.Offset),
+		request.ServiceType)
 	if err != nil {
 		return err
 	}
@@ -57,7 +61,11 @@ func (controller *tenderController) GetMy(ctx echo.Context) error {
 	}
 
 	context := ctx.Request().Context()
-	tenders, err := controller.tenderService.GetMy(context, request.Limit, request.Offset, request.Username)
+	tenders, err := controller.tenderService.GetMy(
+		context,
+		uint(request.Limit),
+		uint(request.Offset),
+		request.Username)
 	if err != nil {
 		return err
 	}

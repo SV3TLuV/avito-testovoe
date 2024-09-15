@@ -36,7 +36,11 @@ func (controller *bidController) GetMy(ctx echo.Context) error {
 	}
 
 	context := ctx.Request().Context()
-	bids, err := controller.bidService.GetMy(context, request.Limit, request.Offset, request.Username)
+	bids, err := controller.bidService.GetMy(
+		context,
+		uint(request.Limit),
+		uint(request.Offset),
+		request.Username)
 	if err != nil {
 		return err
 	}
@@ -88,7 +92,12 @@ func (controller *bidController) GetOffers(ctx echo.Context) error {
 	}
 
 	context := ctx.Request().Context()
-	bids, err := controller.bidService.GetTenderList(context, request.TenderID, request.Limit, request.Offset, request.Username)
+	bids, err := controller.bidService.GetTenderList(
+		context,
+		request.TenderID,
+		uint(request.Limit),
+		uint(request.Offset),
+		request.Username)
 	if err != nil {
 		return err
 	}
@@ -117,8 +126,8 @@ func (controller *bidController) GetReviews(ctx echo.Context) error {
 	context := ctx.Request().Context()
 	reviews, err := controller.bidService.GetTenderReviews(
 		context,
-		request.Limit,
-		request.Offset,
+		uint(request.Limit),
+		uint(request.Offset),
 		request.TenderID,
 		request.AuthorUsername,
 		request.RequesterUsername,

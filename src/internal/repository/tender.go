@@ -50,7 +50,7 @@ func (repo *tenderRepository) GetList(ctx context.Context, limit, offset uint, s
 		return nil, errors.Wrap(err, "failed to build query")
 	}
 
-	var tenders []model.Tender
+	tenders := make([]model.Tender, 0)
 	tr := repo.getter.DefaultTrOrDB(ctx, repo.pool)
 	err = pgxscan.Select(ctx, tr, &tenders, sql, args...)
 	if err != nil {
