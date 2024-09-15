@@ -2,13 +2,15 @@ name: Tests
 
 vars:
   base_url: http://localhost:8080
+  base_timeout: 5
 
 testcases:
-  - name: Ping
+  - name: PING
     steps:
       - type: http
         method: GET
         url: "{{.base_url}}/api/ping"
+        timeout: "{{.base_timeout}}"
         assertions:
           - result.statuscode ShouldEqual 200
           - result.bodyjson ShouldEqual "ok"
@@ -19,16 +21,38 @@ testcases:
       - type: http
         method: GET
         url: "{{.base_url}}/api/tenders"
-        timeout: 5
+        timeout: "{{.base_timeout}}"
         assertions:
           - result.statuscode ShouldEqual 200
           - result.bodyjson ShouldBeArray
-  - name: TENDERS RETURN ARRAY LIMIT 1
+  - name: TENDERS RETURN ARRAY WITH LIMIT
     steps:
       - type: http
         method: GET
-        url: "{{.base_url}}/api/tenders?limit=1&offset=1"
-        timeout: 5
+        url: "{{.base_url}}/api/tenders?limit=1"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+          - result.bodyjson ShouldNotBeNil
+          - or:
+            - result.bodyjson ShouldHaveLength 0
+            - result.bodyjson ShouldHaveLength 1
+  - name: TENDERS RETURN ARRAY WITH OFFSET
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders?offset=1"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+  - name: TENDERS RETURN ARRAY WITH TYPE
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders?service_type=Delivery"
+        timeout: "{{.base_timeout}}"
         assertions:
           - result.statuscode ShouldEqual 200
           - result.bodyjson ShouldBeArray
@@ -38,7 +62,7 @@ testcases:
       - type: http
         method: GET
         url: "{{.base_url}}/api/tenders?limit=-1"
-        timeout: 5
+        timeout: "{{.base_timeout}}"
         assertions:
           - result.statuscode ShouldEqual 400
   - name: TENDERS OFFSET BAD REQUEST
@@ -46,7 +70,7 @@ testcases:
       - type: http
         method: GET
         url: "{{.base_url}}/api/tenders?offset=-1"
-        timeout: 5
+        timeout: "{{.base_timeout}}"
         assertions:
           - result.statuscode ShouldEqual 400
   - name: TENDERS SERVICE TYPE BAD REQUEST
@@ -54,6 +78,6 @@ testcases:
       - type: http
         method: GET
         url: "{{.base_url}}/api/tenders?service_type=bad"
-        timeout: 5
+        timeout: "{{.base_timeout}}"
         assertions:
           - result.statuscode ShouldEqual 400

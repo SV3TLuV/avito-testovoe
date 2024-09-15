@@ -16,3 +16,10 @@ run:
 
 test:
 	venom run testsuite.yml
+
+test-without-logs:
+	make test
+	make test-logs-clean
+
+test-logs-clean:
+	rm -f venom.*.log venom.log
