@@ -39,3 +39,23 @@ func ToTenderRecordFromTender(tender model.Tender) goqu.Record {
 
 	return record
 }
+
+func ToTenderViewFromTender(tender model.Tender) model.TenderView {
+	return model.TenderView{
+		ID:          tender.ID,
+		Name:        tender.Name,
+		Description: tender.Description,
+		Status:      tender.Status,
+		ServiceType: tender.ServiceType,
+		Version:     tender.Version,
+		CreatedAt:   tender.CreatedAt,
+	}
+}
+
+func ToTenderViewsFromTender(tenders []model.Tender) []model.TenderView {
+	views := make([]model.TenderView, 0, len(tenders))
+	for _, tender := range tenders {
+		views = append(views, ToTenderViewFromTender(tender))
+	}
+	return views
+}

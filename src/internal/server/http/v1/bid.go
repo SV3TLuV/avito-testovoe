@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
+	"tender_api/src/internal/converter"
 	"tender_api/src/internal/model"
 	def "tender_api/src/internal/server/http"
 	"tender_api/src/internal/server/http/v1/requests/bid"
@@ -45,7 +46,7 @@ func (controller *bidController) GetMy(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, bids)
+	return ctx.JSON(http.StatusOK, converter.ToBidViewsFromBid(bids))
 }
 
 func (controller *bidController) GetStatus(ctx echo.Context) error {
@@ -102,7 +103,7 @@ func (controller *bidController) GetOffers(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, bids)
+	return ctx.JSON(http.StatusOK, converter.ToBidViewsFromBid(bids))
 }
 
 func (controller *bidController) GetReviews(ctx echo.Context) error {
@@ -136,7 +137,7 @@ func (controller *bidController) GetReviews(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, reviews)
+	return ctx.JSON(http.StatusOK, converter.ToBidReviewViewsFromBidReview(reviews))
 }
 
 func (controller *bidController) Create(ctx echo.Context) error {
@@ -161,7 +162,7 @@ func (controller *bidController) Create(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusCreated, createdBid)
+	return ctx.JSON(http.StatusCreated, converter.ToBidViewFromBid(*createdBid))
 }
 
 func (controller *bidController) UpdateStatus(ctx echo.Context) error {
@@ -186,7 +187,7 @@ func (controller *bidController) UpdateStatus(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, updatedBid)
+	return ctx.JSON(http.StatusOK, converter.ToBidViewFromBid(*updatedBid))
 }
 
 func (controller *bidController) SubmitDecision(ctx echo.Context) error {
@@ -211,7 +212,7 @@ func (controller *bidController) SubmitDecision(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, updatedBid)
+	return ctx.JSON(http.StatusOK, converter.ToBidViewFromBid(*updatedBid))
 }
 
 func (controller *bidController) Feedback(ctx echo.Context) error {
@@ -236,7 +237,7 @@ func (controller *bidController) Feedback(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, updatedBid)
+	return ctx.JSON(http.StatusOK, converter.ToBidViewFromBid(*updatedBid))
 }
 
 func (controller *bidController) Rollback(ctx echo.Context) error {
@@ -267,7 +268,7 @@ func (controller *bidController) Rollback(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, rolledBackBid)
+	return ctx.JSON(http.StatusOK, converter.ToBidViewFromBid(*rolledBackBid))
 }
 
 func (controller *bidController) Edit(ctx echo.Context) error {
@@ -296,5 +297,5 @@ func (controller *bidController) Edit(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, editedBid)
+	return ctx.JSON(http.StatusOK, converter.ToBidViewFromBid(*editedBid))
 }
