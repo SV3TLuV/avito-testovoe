@@ -115,7 +115,7 @@ func (controller *tenderController) Create(ctx echo.Context) error {
 		Description:    request.Description,
 		ServiceType:    request.ServiceType,
 		OrganizationID: request.OrganizationID,
-	}, request.Username)
+	}, request.CreatorUsername)
 	if err != nil {
 		return err
 	}
