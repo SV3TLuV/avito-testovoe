@@ -7,8 +7,6 @@ import (
 	"tender_api/src/internal/model/enum"
 )
 
-// TODO: Сделать индексы в БД. Refactor GetStatus. Refactor some returns.
-
 type TenderRepository interface {
 	GetList(ctx context.Context, limit, offset uint, serviceType []enum.TenderServiceType) ([]model.Tender, error)
 	GetMy(ctx context.Context, limit, offset uint, employeeID uuid.UUID) ([]model.Tender, error)
