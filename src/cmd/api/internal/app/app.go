@@ -60,9 +60,9 @@ func (a *App) initHttpServer(_ context.Context) error {
 	a.httpServer = echo.New()
 	group := a.httpServer.Group("/api")
 
-	a.httpServer.Use(middleware.ErrorHandlerMiddleware)
-	a.httpServer.Use(middleware2.Logger())
 	a.httpServer.Use(middleware2.Recover())
+	a.httpServer.Use(middleware2.Logger())
+	a.httpServer.Use(middleware.ErrorHandlerMiddleware)
 
 	a.httpServer.Validator = validator.NewRequestValidator()
 

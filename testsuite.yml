@@ -1,0 +1,59 @@
+name: Tests
+
+vars:
+  base_url: http://localhost:8080
+
+testcases:
+  - name: Ping
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/ping"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldEqual "ok"
+#TENDERS
+#OK
+  - name: TENDERS RETURN ARRAY
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders"
+        timeout: 5
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+  - name: TENDERS RETURN ARRAY LIMIT 1
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders?limit=1&offset=1"
+        timeout: 5
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+#BAD REQUESTS
+  - name: TENDERS LIMIT BAD REQUEST
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders?limit=-1"
+        timeout: 5
+        assertions:
+          - result.statuscode ShouldEqual 400
+  - name: TENDERS OFFSET BAD REQUEST
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders?offset=-1"
+        timeout: 5
+        assertions:
+          - result.statuscode ShouldEqual 400
+  - name: TENDERS SERVICE TYPE BAD REQUEST
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders?service_type=bad"
+        timeout: 5
+        assertions:
+          - result.statuscode ShouldEqual 400

@@ -5,8 +5,8 @@ import (
 )
 
 type GetListRequest struct {
-	Limit       uint                     `query:"limit" validate:"gte=0"`
-	Offset      uint                     `query:"offset" validate:"gte=0"`
+	Limit       int64                    `query:"limit" validate:"gte=0"`
+	Offset      int64                    `query:"offset" validate:"gte=0"`
 	ServiceType []enum.TenderServiceType `query:"service_type,enum_tender_service_type"`
 }
 
