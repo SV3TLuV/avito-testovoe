@@ -103,7 +103,7 @@ testcases:
     steps:
       - type: http
         method: GET
-        url: "{{.base_url}}/api/tenders/my?limit=1"
+        url: "{{.base_url}}/api/tenders/my?username=user1&limit=1"
         timeout: "{{.base_timeout}}"
         assertions:
           - result.statuscode ShouldEqual 200
@@ -141,5 +141,15 @@ testcases:
         timeout: "{{.base_timeout}}"
         assertions:
           - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  #USER NOT FOUND (401)
+  - name: /tenders/my BAD USERNAME
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders/my?username=bad@user"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 401
           - result.bodyjson ShouldContainKey reason
 
