@@ -1,0 +1,16 @@
+DROP INDEX idx_organization_responsible_organization_id;
+DROP INDEX idx_organization_responsible_user_id;
+DROP INDEX idx_tender_organization_id;
+DROP INDEX idx_tender_service_type;
+DROP INDEX idx_tender_status;
+DROP INDEX idx_tender_history_organization_id;
+DROP INDEX idx_tender_history_version;
+DROP INDEX idx_employee_tender_employee_id;
+DROP INDEX idx_employee_tender_tender_id;
+DROP INDEX idx_bid_tender_id;
+DROP INDEX idx_bid_author_id;
+DROP INDEX idx_bid_status;
+DROP INDEX idx_bid_history_tender_id;
+DROP INDEX idx_bid_history_author_id;
+DROP INDEX idx_bid_history_version;
+DROP INDEX idx_bid_review_bid_id;
