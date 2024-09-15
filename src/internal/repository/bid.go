@@ -39,7 +39,7 @@ func (repo *bidRepository) GetMy(ctx context.Context, limit, offset uint, employ
 		return nil, errors.Wrap(err, "failed to build query")
 	}
 
-	var bids []model.Bid
+	bids := make([]model.Bid, 0)
 	tr := repo.getter.DefaultTrOrDB(ctx, repo.pool)
 	err = pgxscan.Select(ctx, tr, &bids, sql, args...)
 	if err != nil {
@@ -72,7 +72,7 @@ func (repo *bidRepository) GetTenderList(ctx context.Context, tenderID uuid.UUID
 		return nil, errors.Wrap(err, "failed to build query")
 	}
 
-	var bids []model.Bid
+	bids := make([]model.Bid, 0)
 	tr := repo.getter.DefaultTrOrDB(ctx, repo.pool)
 	err = pgxscan.Select(ctx, tr, &bids, sql, args...)
 	if err != nil {
@@ -133,7 +133,7 @@ func (repo *bidRepository) GetTenderReviews(ctx context.Context, limit, offset u
 		return nil, errors.Wrap(err, "failed to build query")
 	}
 
-	var reviews []model.BidReview
+	reviews := make([]model.BidReview, 0)
 	tr := repo.getter.DefaultTrOrDB(ctx, repo.pool)
 	err = pgxscan.Select(ctx, tr, &reviews, sql, args...)
 	if err != nil {

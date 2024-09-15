@@ -1,0 +1,145 @@
+vars:
+  base_url: http://localhost:8080
+  base_timeout: 5
+
+testcases:
+#APP
+  #PING
+  - name: /ping
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/ping"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldEqual "ok"
+
+#TENDER
+  #GET LIST
+  #OK (200)
+  - name: /tenders RETURN ARRAY
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+  - name: /tenders RETURN ARRAY WITH LIMIT
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders?limit=1"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+          - result.bodyjson ShouldNotBeNil
+          - or:
+              - result.bodyjson ShouldHaveLength 0
+              - result.bodyjson ShouldHaveLength 1
+  - name: /tenders RETURN ARRAY WITH OFFSET
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders?offset=1"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+  - name: /tenders RETURN ARRAY WITH TYPE
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders?service_type=Delivery"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+
+  #BAD REQUEST (400)
+  - name: /tenders LIMIT BAD REQUEST
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders?limit=-1"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /tenders OFFSET BAD REQUEST
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders?offset=-1"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /tenders SERVICE TYPE BAD REQUEST
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders?service_type=bad"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+
+  #GET MY
+  #OK (200)
+  - name: /tenders/my RETURN ARRAY
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders/my?username=user1"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+  - name: /tenders/my RETURN ARRAY WITH LIMIT
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders/my?limit=1"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+          - result.bodyjson ShouldNotBeNil
+          - or:
+              - result.bodyjson ShouldHaveLength 0
+              - result.bodyjson ShouldHaveLength 1
+  #BAD REQUEST (400)
+  - name: /tenders/my LIMIT BAD REQUEST
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders/my?username=user1&limit=-1"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /tenders/my OFFSET BAD REQUEST
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders/my?username=user1&offset=-1"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /tenders/my USERNAME MAX LENGTH BAD REQUEST
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders/my"
+        queries:
+          username: "{{.randomString 60}}"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+
