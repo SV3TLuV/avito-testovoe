@@ -15,11 +15,10 @@ run:
 	go run ./src/cmd/api/main.go
 
 test:
-	venom run testsuite.yml
+	venom run venom-tests.yml
 
 test-without-logs:
-	make test
-	make test-logs-clean
+	make test clean
 
-test-logs-clean:
+clean:
 	rm -f venom.*.log venom.log

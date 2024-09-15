@@ -11,21 +11,20 @@ func ErrorHandlerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		err := next(c)
 
+		status := http.StatusInternalServerError
 		if err != nil {
 			switch {
 			case errors.Is(err, model.ErrBadRequest), errors.Is(err, echo.ErrBadRequest):
-				return c.JSON(http.StatusBadRequest, echo.Map{"reason": err.Error()})
+				status = http.StatusBadRequest
 			case errors.Is(err, model.ErrUserNotExists):
-				return c.JSON(http.StatusNotFound, echo.Map{"reason": err.Error()})
+				status = http.StatusNotFound
 			case errors.Is(err, model.ErrForbidden), errors.Is(err, echo.ErrForbidden):
-				return c.JSON(http.StatusForbidden, echo.Map{"reason": err.Error()})
+				status = http.StatusForbidden
 			case errors.Is(err, model.ErrNotFound), errors.Is(err, echo.ErrNotFound):
-				return c.JSON(http.StatusNotFound, echo.Map{"reason": err.Error()})
-			default:
-				return c.JSON(http.StatusInternalServerError, echo.Map{
-					"reason": "internal server error: " + err.Error(),
-				})
+				status = http.StatusUnauthorized
 			}
+
+			return c.JSON(status, echo.Map{"reason": err.Error()})
 		}
 
 		return nil
