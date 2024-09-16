@@ -260,6 +260,7 @@ func (controller *bidController) Rollback(ctx echo.Context) error {
 		return model.ErrBadRequest
 	}
 	request.Version = version
+	request.Username = ctx.QueryParam("username")
 
 	if err := ctx.Validate(&request); err != nil {
 		return model.ErrBadRequest
