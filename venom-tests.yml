@@ -1266,10 +1266,110 @@ testcases:
 
 #ROLLBACK
   #OK (200)
+  - name: /bids/ ROLLBACK
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/d2c9b84e-df2b-4409-b19b-34ec9dc51198/rollback/1?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.id ShouldEqual "d2c9b84e-df2b-4409-b19b-34ec9dc51198"
+          - result.bodyjson.name ShouldEqual "Новое тестовое предложение"
+          - result.bodyjson.status ShouldEqual "Created"
+          - result.bodyjson.authorType ShouldEqual "Organization"
+          - result.bodyjson.authorId ShouldEqual "550e8400-e29b-41d4-a716-446655440003"
+          - result.bodyjson.version ShouldNotEqual 1
+          - result.bodyjson ShouldContainKey createdAt
+  - name: /bids/ ROLLBACK
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/d2c9b84e-df2b-4409-b19b-34ec9dc51198/rollback/2?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.id ShouldEqual "d2c9b84e-df2b-4409-b19b-34ec9dc51198"
+          - result.bodyjson.name ShouldEqual "Обновленное тестовое предложение"
+          - result.bodyjson.status ShouldEqual "Created"
+          - result.bodyjson.authorType ShouldEqual "Organization"
+          - result.bodyjson.authorId ShouldEqual "550e8400-e29b-41d4-a716-446655440003"
+          - result.bodyjson.version ShouldNotEqual 1
+          - result.bodyjson ShouldContainKey createdAt
   #BAD REQUEST (400)
+  - name: /bids/ ROLLBACK WITHOUT USERNAME
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/d2c9b84e-df2b-4409-b19b-34ec9dc51198/rollback/1"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /bids/ ROLLBACK INVALID VERSION
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/d2c9b84e-df2b-4409-b19b-34ec9dc51198/rollback/0?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /bids/ ROLLBACK INVALID BID ID
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/00000000-0000-0000-0000-000000000000/rollback/1?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
   #USER NOT FOUND (401)
+  - name: /bids/ ROLLBACK WITH INVALID USERNAME
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/d2c9b84e-df2b-4409-b19b-34ec9dc51198/rollback/1?username=bad_user"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 401
+          - result.bodyjson ShouldContainKey reason
   #USER HAS NO RIGHTS (403)
+  - name: /bids/ ROLLBACK USER HASN'T RIGHTS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/d2c9b84e-df2b-4409-b19b-34ec9dc51198/rollback/1?username=user4"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 403
+          - result.bodyjson ShouldContainKey reason
   #NOT FOUND (404)
+  - name: /bids/ ROLLBACK NOT EXISTS BID
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/10000000-0000-0000-0000-000000000000/rollback/1?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 404
+          - result.bodyjson ShouldContainKey reason
 
 #GET AUTHOR REVIEWS
   #OK (200)
