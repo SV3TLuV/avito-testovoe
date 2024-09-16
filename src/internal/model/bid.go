@@ -11,7 +11,6 @@ type Bid struct {
 	Name        string
 	Description string
 	Status      enum.BidStatus
-	Decision    enum.BidDecision
 	TenderID    uuid.UUID
 	AuthorType  enum.AuthorType
 	AuthorID    uuid.UUID
@@ -26,7 +25,6 @@ type BidHistory struct {
 	Name        string
 	Description string
 	Status      enum.BidStatus
-	Decision    enum.BidDecision
 	TenderID    uuid.UUID
 	AuthorType  enum.AuthorType
 	AuthorID    uuid.UUID
