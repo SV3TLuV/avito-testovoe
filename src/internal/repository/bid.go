@@ -62,7 +62,7 @@ func (repo *bidRepository) GetTenderBidList(ctx context.Context, tenderID uuid.U
 				goqu.Ex{"bid.tender_id": tenderID},
 				goqu.Or(
 					goqu.Ex{"bid.author_id": employeeID},
-					goqu.Ex{"tender_id.organization_id": organizationID}))).
+					goqu.Ex{"tender.organization_id": organizationID}))).
 		Order(goqu.I("bid.name").Asc()).
 		Limit(limit).
 		Offset(offset)
