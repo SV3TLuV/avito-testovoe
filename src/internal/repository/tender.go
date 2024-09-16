@@ -135,7 +135,7 @@ func (repo *tenderRepository) GetById(ctx context.Context, tenderID uuid.UUID) (
 }
 
 func (repo *tenderRepository) GetByVersion(ctx context.Context, tenderID uuid.UUID, version uint64) (*model.Tender, error) {
-	if tender, err := repo.GetById(ctx, tenderID); err == nil {
+	if tender, err := repo.GetById(ctx, tenderID); err == nil && tender.Version == version {
 		return tender, nil
 	}
 
@@ -221,11 +221,10 @@ func (repo *tenderRepository) Edit(ctx context.Context, entity model.Tender) (*m
 
 	var tender model.Tender
 	err = repo.trManager.Do(ctx, func(ctx context.Context) error {
+		tr := repo.getter.DefaultTrOrDB(ctx, repo.pool)
 		if err = repo.archive(ctx, *current); err != nil {
 			return errors.Wrap(err, "failed to archive tender")
 		}
-
-		tr := repo.getter.DefaultTrOrDB(ctx, repo.pool)
 
 		entity.Version = current.Version + 1
 		record := converter.ToTenderRecordFromTender(entity)
