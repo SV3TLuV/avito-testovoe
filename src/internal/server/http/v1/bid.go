@@ -285,6 +285,7 @@ func (controller *bidController) Edit(ctx echo.Context) error {
 		return model.ErrBadRequest
 	}
 	request.BidID = bidID
+	request.Username = ctx.QueryParam("username")
 
 	if err := ctx.Validate(&request); err != nil {
 		return model.ErrBadRequest
