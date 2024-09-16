@@ -73,7 +73,37 @@ func (repo *employeeRepository) GetByUsername(ctx context.Context, username stri
 	return &employee, nil
 }
 
-func (repo *employeeRepository) GetUserOrganization(ctx context.Context, username string) (*model.Organization, error) {
+func (repo *employeeRepository) GetUserOrganizationById(ctx context.Context, employeeID uuid.UUID) (*model.Organization, error) {
+	query := goqu.Dialect("postgres").
+		Select("organization.*").
+		From("organization").
+		Join(
+			goqu.T("organization_responsible"),
+			goqu.On(goqu.Ex{"organization_responsible.organization_id": goqu.I("organization.id")})).
+		Join(
+			goqu.T("employee"),
+			goqu.On(goqu.Ex{"employee.id": goqu.I("organization_responsible.user_id")})).
+		Where(goqu.Ex{"employee.id": employeeID})
+
+	sql, args, err := query.ToSQL()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to build query")
+	}
+
+	var organization model.Organization
+	tr := repo.getter.DefaultTrOrDB(ctx, repo.pool)
+	err = pgxscan.Get(ctx, tr, &organization, sql, args...)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, errors.Wrap(model.ErrNotFound, "organization not found")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute query")
+	}
+
+	return &organization, nil
+}
+
+func (repo *employeeRepository) GetUserOrganizationByUsername(ctx context.Context, username string) (*model.Organization, error) {
 	query := goqu.Dialect("postgres").
 		Select("organization.*").
 		From("organization").
