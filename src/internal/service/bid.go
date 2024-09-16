@@ -247,7 +247,7 @@ func (s *bidService) Feedback(ctx context.Context, bidID uuid.UUID, feedback, us
 		return nil, errors.Wrap(model.ErrForbidden, "user has no access")
 	}
 
-	if err := s.repo.Feedback(ctx, bidID, feedback); err != nil {
+	if err := s.repo.Feedback(ctx, bidID, employee.ID, feedback); err != nil {
 		return nil, err
 	}
 
