@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS bid (
 );
 
 CREATE TABLE IF NOT EXISTS bid_history (
-    id UUID NOT NULL,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     bid_id UUID NOT NULL REFERENCES bid(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     description TEXT,
