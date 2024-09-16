@@ -330,7 +330,7 @@ testcases:
           - result.statuscode ShouldEqual 403
           - result.bodyjson ShouldContainKey reason
 
-#GET STATUS AND UPDATE STATUS
+#GET STATUS
   #OK (200)
   - name: /tenders/status CREATED
     steps:
@@ -365,6 +365,18 @@ testcases:
         assertions:
           - result.statuscode ShouldEqual 200
           - result.bodyjson ShouldEqual "Closed"
+  #BAD REQUEST (400)
+  - name: /tenders/status EMPTY TENDER ID
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders/00000000-0000-0000-0000-000000000000/status?username=user1"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
   #USER NOT FOUND (401)
   - name: /tenders/status INVALID USER
     steps:
@@ -389,12 +401,136 @@ testcases:
         assertions:
           - result.statuscode ShouldEqual 403
           - result.bodyjson ShouldContainKey reason
-  #TENDER NOT FOUND (404)
+  #NOT FOUND (404)
   - name: /tenders/status TENDER NOT FOUND
     steps:
       - type: http
         method: GET
         url: "{{.base_url}}/api/tenders/10000000-0000-0000-0000-000000000000/status?username=user1"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 404
+          - result.bodyjson ShouldContainKey reason
+
+#UPDATE STATUS
+  #OK (200)
+  - name: /tenders/ UPDATE STATUS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/ba0c3b96-83c6-4a64-89ec-901b6dbf4399/status?username=user2&status=Created"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.id ShouldNotBeEmpty
+          - result.bodyjson ShouldContainKey name
+          - result.bodyjson ShouldContainKey description
+          - result.bodyjson.status ShouldEqual "Created"
+          - result.bodyjson ShouldContainKey serviceType
+          - result.bodyjson ShouldContainKey version
+          - result.bodyjson ShouldContainKey createdAt
+  - name: /tenders/ UPDATE STATUS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/ba0c3b96-83c6-4a64-89ec-901b6dbf4399/status?username=user2&status=Published"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.id ShouldNotBeEmpty
+          - result.bodyjson ShouldContainKey name
+          - result.bodyjson ShouldContainKey description
+          - result.bodyjson.status ShouldEqual "Published"
+          - result.bodyjson ShouldContainKey serviceType
+          - result.bodyjson ShouldContainKey version
+          - result.bodyjson ShouldContainKey createdAt
+  - name: /tenders/ UPDATE STATUS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/ba0c3b96-83c6-4a64-89ec-901b6dbf4399/status?username=user2&status=Closed"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.id ShouldNotBeEmpty
+          - result.bodyjson ShouldContainKey name
+          - result.bodyjson ShouldContainKey description
+          - result.bodyjson.status ShouldEqual "Closed"
+          - result.bodyjson ShouldContainKey serviceType
+          - result.bodyjson ShouldContainKey version
+          - result.bodyjson ShouldContainKey createdAt
+  #BAD REQUEST (400)
+  - name: /tenders/ UPDATE STATUS BAD STATUS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/ba0c3b96-83c6-4a64-89ec-901b6dbf4399/status?username=user2&status=bad"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /tenders/ UPDATE STATUS WITHOUT USERNAME
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/ba0c3b96-83c6-4a64-89ec-901b6dbf4399/status?status=Closed"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /tenders/ UPDATE STATUS WITH BAD TENDER ID
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/00000000-0000-0000-0000-000000000000/status?username=user2&status=Closed"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  #USER NOT FOUND (401)
+  - name: /tenders/ UPDATE STATUS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/ba0c3b96-83c6-4a64-89ec-901b6dbf4399/status?username=bad_user&status=Closed"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 401
+          - result.bodyjson ShouldContainKey reason
+  #USER HAS NO RIGHTS (403)
+  - name: /tenders/ UPDATE STATUS USER HAS NO RIGHTS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/ba0c3b96-83c6-4a64-89ec-901b6dbf4399/status?username=user4&status=Closed"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 403
+          - result.bodyjson ShouldContainKey reason
+  #NOT FOUND (404)
+  - name: /tenders/ UPDATE STATUS WITH BAD TENDER ID
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/10000000-0000-0000-0000-000000000000/status?username=user2&status=Closed"
         headers:
           Content-Type: application/json
         timeout: "{{.base_timeout}}"
