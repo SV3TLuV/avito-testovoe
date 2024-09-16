@@ -1007,10 +1007,76 @@ testcases:
 
 #GET TENDER BID LIST
   #OK (200)
+  - name: /bids GET LIST
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/list?username=user3"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+  - name: /bids GET LIST WITH LIMIT
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/list?username=user3&limit=1"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+          - result.bodyjson ShouldNotBeNil
+          - or:
+              - result.bodyjson ShouldHaveLength 0
+              - result.bodyjson ShouldHaveLength 1
   #BAD REQUEST (400)
+  - name: /bids GET LIST WITHOUT USERNAME
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/list"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /bids GET LIST WITH INVALID LIMIT
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/list?limit=-1&username=user3"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /bids GET LIST WITH INVALID OFFSET
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/list?offset=-1&username=user3"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
   #USER NOT FOUND (401)
-  #USER HAS NO RIGHTS (403)
+  - name: /bids GET LIST INVALID USERNAME
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/list?username=bad_user"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 401
+          - result.bodyjson ShouldContainKey reason
   #NOT FOUND (404)
+  - name: /bids GET LIST TENDER NOT EXISTS
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/00000000-0000-0000-8ef9-098babceef1a/list?username=user3"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 404
+          - result.bodyjson ShouldContainKey reason
 
 #GET BID STATUS
   #OK (200)
