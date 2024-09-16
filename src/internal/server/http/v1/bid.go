@@ -229,6 +229,8 @@ func (controller *bidController) Feedback(ctx echo.Context) error {
 		return model.ErrBadRequest
 	}
 	request.BidID = bidID
+	request.Username = ctx.QueryParam("username")
+	request.BidFeedback = ctx.QueryParam("bidFeedback")
 
 	if err := ctx.Validate(&request); err != nil {
 		return model.ErrBadRequest
