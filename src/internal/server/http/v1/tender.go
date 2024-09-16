@@ -120,7 +120,7 @@ func (controller *tenderController) Create(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusCreated, converter.ToTenderViewFromTender(*created))
+	return ctx.JSON(http.StatusOK, converter.ToTenderViewFromTender(*created))
 }
 
 func (controller *tenderController) UpdateStatus(ctx echo.Context) error {

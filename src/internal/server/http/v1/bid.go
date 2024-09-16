@@ -162,7 +162,7 @@ func (controller *bidController) Create(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusCreated, converter.ToBidViewFromBid(*createdBid))
+	return ctx.JSON(http.StatusOK, converter.ToBidViewFromBid(*createdBid))
 }
 
 func (controller *bidController) UpdateStatus(ctx echo.Context) error {
