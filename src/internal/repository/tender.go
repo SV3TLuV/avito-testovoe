@@ -142,7 +142,7 @@ func (repo *tenderRepository) GetByVersion(ctx context.Context, tenderID uuid.UU
 	query := goqu.Dialect("postgres").
 		From("tender_history").
 		Where(goqu.And(
-			goqu.Ex{"id": tenderID},
+			goqu.Ex{"tender_id": tenderID},
 			goqu.Ex{"version": version}))
 
 	sql, args, err := query.ToSQL()

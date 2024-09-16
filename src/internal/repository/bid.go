@@ -201,7 +201,7 @@ func (repo *bidRepository) GetByVersion(ctx context.Context, bidID uuid.UUID, ve
 	query := goqu.Dialect("postgres").
 		From("bid_history").
 		Where(goqu.And(
-			goqu.Ex{"id": bidID},
+			goqu.Ex{"bid_id": bidID},
 			goqu.Ex{"version": version}))
 
 	sql, args, err := query.ToSQL()
