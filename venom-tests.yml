@@ -1029,10 +1029,116 @@ testcases:
 
 #UPDATE BID STATUS
   #OK (200)
+  - name: /bids/ UPDATE STATUS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/999db134-8907-41c0-8ef9-098babceef1a/status?username=user3&status=Created"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.id ShouldNotBeEmpty
+          - result.bodyjson ShouldContainKey name
+          - result.bodyjson.status ShouldEqual "Created"
+          - result.bodyjson ShouldContainKey authorType
+          - result.bodyjson ShouldContainKey authorId
+          - result.bodyjson ShouldContainKey version
+          - result.bodyjson ShouldContainKey createdAt
+  - name: /bids/ UPDATE STATUS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/999db134-8907-41c0-8ef9-098babceef1a/status?username=user3&status=Published"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.id ShouldNotBeEmpty
+          - result.bodyjson ShouldContainKey name
+          - result.bodyjson.status ShouldEqual "Published"
+          - result.bodyjson ShouldContainKey authorType
+          - result.bodyjson ShouldContainKey authorId
+          - result.bodyjson ShouldContainKey version
+          - result.bodyjson ShouldContainKey createdAt
+  - name: /bids/ UPDATE STATUS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/999db134-8907-41c0-8ef9-098babceef1a/status?username=user3&status=Canceled"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.id ShouldNotBeEmpty
+          - result.bodyjson ShouldContainKey name
+          - result.bodyjson.status ShouldEqual "Canceled"
+          - result.bodyjson ShouldContainKey authorType
+          - result.bodyjson ShouldContainKey authorId
+          - result.bodyjson ShouldContainKey version
+          - result.bodyjson ShouldContainKey createdAt
   #BAD REQUEST (400)
+  - name: /bids/ UPDATE STATUS WITHOUT STATUS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/999db134-8907-41c0-8ef9-098babceef1a/status?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /bids/ UPDATE STATUS WITHOUT USERNAME
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/999db134-8907-41c0-8ef9-098babceef1a/status?status=Created"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
   #USER NOT FOUND (401)
+  - name: /bids/ UPDATE STATUS WITH INVALID USERNAME
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/999db134-8907-41c0-8ef9-098babceef1a/status?username=bad_user&status=Created"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 401
+          - result.bodyjson ShouldContainKey reason
   #USER HAS NO RIGHTS (403)
+  - name: /bids/ UPDATE STATUS USER HASN'T RIGHTS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/999db134-8907-41c0-8ef9-098babceef1a/status?username=user4&status=Created"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 403
+          - result.bodyjson ShouldContainKey reason
   #NOT FOUND (404)
+  - name: /bids/ UPDATE STATUS WITH INVALID BID ID
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/10000000-0000-0000-0000-000000000000/status?username=user3&status=Created"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 404
+          - result.bodyjson ShouldContainKey reason
 
 #EDIT BID
   #OK (200)

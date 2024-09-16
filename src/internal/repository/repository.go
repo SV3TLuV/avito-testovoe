@@ -20,7 +20,7 @@ type TenderRepository interface {
 
 type BidRepository interface {
 	GetMy(ctx context.Context, limit, offset uint, employeeId uuid.UUID) ([]model.Bid, error)
-	GetTenderList(ctx context.Context, tenderID uuid.UUID, limit, offset uint,
+	GetTenderBidList(ctx context.Context, tenderID uuid.UUID, limit, offset uint,
 		employeeID, organizationID uuid.UUID) ([]model.Bid, error)
 	GetStatus(ctx context.Context, bidID uuid.UUID) (*model.BidStatusResponse, error)
 	GetTenderReviews(ctx context.Context, limit, offset uint,

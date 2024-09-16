@@ -51,7 +51,7 @@ func (s *bidService) GetTenderList(ctx context.Context, tenderID uuid.UUID,
 		return nil, err
 	}
 
-	return s.repo.GetTenderList(ctx, tenderID, limit, offset, employee.ID, organization.ID)
+	return s.repo.GetTenderBidList(ctx, tenderID, limit, offset, employee.ID, organization.ID)
 }
 
 func (s *bidService) GetStatus(ctx context.Context, bidID uuid.UUID, username string) (enum.BidStatus, error) {
