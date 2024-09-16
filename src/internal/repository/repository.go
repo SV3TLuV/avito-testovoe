@@ -32,6 +32,8 @@ type BidRepository interface {
 	Edit(ctx context.Context, entity model.Bid) (*model.Bid, error)
 	UpdateStatus(ctx context.Context, bidID uuid.UUID, status enum.BidStatus) (*model.Bid, error)
 	SubmitDecision(ctx context.Context, bidID, employeeID uuid.UUID, decision enum.BidDecision) error
+	GetDecisions(ctx context.Context, bidID uuid.UUID) ([]model.BidEmployeeDecision, error)
+	GetQuorum(ctx context.Context, bidID uuid.UUID) (int, error)
 	Feedback(ctx context.Context, bidID uuid.UUID, feedback string) error
 }
 

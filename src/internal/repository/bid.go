@@ -14,6 +14,8 @@ import (
 	"tender_api/src/internal/model/enum"
 )
 
+var _ BidRepository = (*bidRepository)(nil)
+
 type bidRepository struct {
 	pool   *pgxpool.Pool
 	getter *trmpgx.CtxGetter
@@ -333,6 +335,57 @@ func (repo *bidRepository) SubmitDecision(ctx context.Context, bidID, employeeID
 	}
 
 	return nil
+}
+
+func (repo *bidRepository) GetDecisions(ctx context.Context, bidID uuid.UUID) ([]model.BidEmployeeDecision, error) {
+	query := goqu.Dialect("postgres").
+		From("bid_employee_decision").
+		Where(goqu.Ex{"bid_id": bidID})
+
+	sql, args, err := query.ToSQL()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to build query")
+	}
+
+	decisions := make([]model.BidEmployeeDecision, 0)
+	tr := repo.getter.DefaultTrOrDB(ctx, repo.pool)
+	err = pgxscan.Select(ctx, tr, &decisions, sql, args...)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute query")
+	}
+
+	return decisions, nil
+}
+
+func (repo *bidRepository) GetQuorum(ctx context.Context, bidID uuid.UUID) (int, error) {
+	const minQuorum = 3
+
+	query := goqu.Dialect("postgres").
+		Select("COUNT(organization_responsible.user_id)").
+		From("bid").
+		Join(
+			goqu.T("tender"),
+			goqu.On(goqu.Ex{"tender.id": goqu.I("bid.tender_id")})).
+		Join(
+			goqu.T("organization_responsible"),
+			goqu.On(goqu.Ex{
+				"organization_responsible.organization_id": goqu.I("tender.organization_id"),
+			})).
+		Where(goqu.Ex{"bid_id": bidID})
+
+	sql, args, err := query.ToSQL()
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to build query")
+	}
+
+	var responsibleCount int
+	tr := repo.getter.DefaultTrOrDB(ctx, repo.pool)
+	err = pgxscan.Get(ctx, tr, &responsibleCount, sql, args...)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to execute query")
+	}
+
+	return min(minQuorum, responsibleCount), nil
 }
 
 func (repo *bidRepository) Feedback(ctx context.Context, bidID uuid.UUID, feedback string) error {
