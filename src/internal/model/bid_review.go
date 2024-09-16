@@ -8,6 +8,7 @@ import (
 type BidReview struct {
 	ID          uuid.UUID
 	BidID       uuid.UUID
+	EmployeeID  uuid.UUID
 	Description string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
