@@ -1259,10 +1259,82 @@ testcases:
 
 #FEEDBACK
   #OK (200)
+  - name: /bids/ FEEDBACK
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/999db134-8907-41c0-8ef9-098babceef1a/feedback?username=user2&bidFeedback=ТЕСТ"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.id ShouldEqual "999db134-8907-41c0-8ef9-098babceef1a"
+          - result.bodyjson ShouldContainKey name
+          - result.bodyjson ShouldContainKey status
+          - result.bodyjson ShouldContainKey authorType
+          - result.bodyjson ShouldContainKey authorId
+          - result.bodyjson ShouldContainKey version
+          - result.bodyjson ShouldContainKey createdAt
   #BAD REQUEST (400)
+  - name: /bids/ FEEDBACK WITHOUT BID FEEDBACK
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/999db134-8907-41c0-8ef9-098babceef1a/feedback?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /bids/ FEEDBACK WITHOUT USERNAME
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/999db134-8907-41c0-8ef9-098babceef1a/feedback?bidFeedback=ТЕСТ"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
   #USER NOT FOUND (401)
+  - name: /bids/ FEEDBACK INVALID USERNAME
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/999db134-8907-41c0-8ef9-098babceef1a/feedback?username=bad_user&bidFeedback=ТЕСТ"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 401
+          - result.bodyjson ShouldContainKey reason
   #USER HAS NO RIGHTS (403)
+  - name: /bids/ FEEDBACK USER HASN'T RIGHTS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/999db134-8907-41c0-8ef9-098babceef1a/feedback?username=user4&bidFeedback=ТЕСТ"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 403
+          - result.bodyjson ShouldContainKey reason
   #NOT FOUND (404)
+  - name: /bids/ FEEDBACK BID NOT EXISTS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/bids/00000000-8907-0000-8ef9-098babceef1a/feedback?username=user3&bidFeedback=ТЕСТ"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 404
+          - result.bodyjson ShouldContainKey reason
 
 #ROLLBACK
   #OK (200)
