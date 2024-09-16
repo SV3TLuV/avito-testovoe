@@ -26,7 +26,7 @@ type BidRepository interface {
 	GetTenderReviews(ctx context.Context, limit, offset uint,
 		tenderID, authorID, requesterOrganizationID uuid.UUID) ([]model.BidReview, error)
 	GetById(ctx context.Context, bidID uuid.UUID) (*model.Bid, error)
-	GetTenderOwnerId(ctx context.Context, bidID uuid.UUID) (uuid.UUID, error)
+	GetTenderOrganizationId(ctx context.Context, bidID uuid.UUID) (uuid.UUID, error)
 	GetByVersion(ctx context.Context, bidID uuid.UUID, version uint64) (*model.Bid, error)
 	Create(ctx context.Context, entity model.Bid) (*model.Bid, error)
 	Edit(ctx context.Context, entity model.Bid) (*model.Bid, error)
@@ -36,6 +36,7 @@ type BidRepository interface {
 }
 
 type EmployeeRepository interface {
+	GetById(ctx context.Context, id uuid.UUID) (*model.Employee, error)
 	GetByUsername(ctx context.Context, username string) (*model.Employee, error)
 	GetUserOrganization(ctx context.Context, username string) (*model.Organization, error)
 }

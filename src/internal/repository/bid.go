@@ -166,7 +166,7 @@ func (repo *bidRepository) GetById(ctx context.Context, bidID uuid.UUID) (*model
 	return &bid, nil
 }
 
-func (repo *bidRepository) GetTenderOwnerId(ctx context.Context, bidID uuid.UUID) (uuid.UUID, error) {
+func (repo *bidRepository) GetTenderOrganizationId(ctx context.Context, bidID uuid.UUID) (uuid.UUID, error) {
 	query := goqu.Dialect("postgres").
 		Select("tender.organization_id").
 		From("bid").

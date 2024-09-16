@@ -13,14 +13,17 @@ var _ BidService = (*bidService)(nil)
 
 type bidService struct {
 	repo         repository.BidRepository
+	tenderRepo   repository.TenderRepository
 	employeeRepo repository.EmployeeRepository
 }
 
 func NewBidService(repo repository.BidRepository,
+	tenderRepo repository.TenderRepository,
 	employeeRepo repository.EmployeeRepository) *bidService {
 	return &bidService{
 		repo:         repo,
 		employeeRepo: employeeRepo,
+		tenderRepo:   tenderRepo,
 	}
 }
 
@@ -100,6 +103,27 @@ func (s *bidService) GetTenderReviews(ctx context.Context, limit, offset uint,
 }
 
 func (s *bidService) Create(ctx context.Context, entity model.Bid) (*model.Bid, error) {
+	employee, err := s.employeeRepo.GetById(ctx, entity.AuthorID)
+	if err != nil {
+		return nil, err
+	}
+
+	organization, err := s.employeeRepo.GetUserOrganization(ctx, employee.Username)
+	if err != nil {
+		if errors.Is(err, model.ErrNotFound) {
+			return nil, errors.Wrap(model.ErrForbidden, "user has no access")
+		}
+		return nil, err
+	}
+	if organization == nil {
+		return nil, errors.Wrap(model.ErrForbidden, "user has no access")
+	}
+
+	_, err = s.tenderRepo.GetById(ctx, entity.TenderID)
+	if err != nil {
+		return nil, err
+	}
+
 	return s.repo.Create(ctx, entity)
 }
 
@@ -135,7 +159,7 @@ func (s *bidService) UpdateStatus(ctx context.Context, bidID uuid.UUID, status e
 		return nil, err
 	}
 
-	ownerId, err := s.repo.GetTenderOwnerId(ctx, bidID)
+	ownerId, err := s.repo.GetTenderOrganizationId(ctx, bidID)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +190,7 @@ func (s *bidService) SubmitDecision(ctx context.Context, bidID uuid.UUID, decisi
 		return nil, err
 	}
 
-	ownerId, err := s.repo.GetTenderOwnerId(ctx, bidID)
+	ownerId, err := s.repo.GetTenderOrganizationId(ctx, bidID)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +207,7 @@ func (s *bidService) SubmitDecision(ctx context.Context, bidID uuid.UUID, decisi
 }
 
 func (s *bidService) Feedback(ctx context.Context, bidID uuid.UUID, feedback, username string) (*model.Bid, error) {
-	ownerId, err := s.repo.GetTenderOwnerId(ctx, bidID)
+	ownerId, err := s.repo.GetTenderOrganizationId(ctx, bidID)
 	if err != nil {
 		return nil, err
 	}
