@@ -21,9 +21,6 @@ func ToBidRecordFromBid(bid model.Bid) goqu.Record {
 	if bid.Status != "" {
 		record["status"] = bid.Status
 	}
-	if bid.Decision != "" {
-		record["decision"] = bid.Decision
-	}
 	if bid.TenderID != uuid.Nil {
 		record["tender_id"] = bid.TenderID
 	}
@@ -64,9 +61,6 @@ func ToBidHistoryRecordFromBidHistory(bid model.BidHistory) goqu.Record {
 	if bid.Status != "" {
 		record["status"] = bid.Status
 	}
-	if bid.Decision != "" {
-		record["decision"] = bid.Decision
-	}
 	if bid.TenderID != uuid.Nil {
 		record["tender_id"] = bid.TenderID
 	}
@@ -95,7 +89,6 @@ func ToBidHistoryFromBid(bid model.Bid) model.BidHistory {
 		Name:        bid.Name,
 		Description: bid.Description,
 		Status:      bid.Status,
-		Decision:    bid.Decision,
 		TenderID:    bid.TenderID,
 		AuthorType:  bid.AuthorType,
 		AuthorID:    bid.AuthorID,
@@ -111,7 +104,6 @@ func ToBidFromBidHistory(history model.BidHistory) model.Bid {
 		Name:        history.Name,
 		Description: history.Description,
 		Status:      history.Status,
-		Decision:    history.Decision,
 		TenderID:    history.TenderID,
 		AuthorType:  history.AuthorType,
 		AuthorID:    history.AuthorID,

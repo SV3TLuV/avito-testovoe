@@ -59,7 +59,6 @@ CREATE TABLE IF NOT EXISTS bid (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     status bid_status NOT NULL,
-    decision bid_decision,
     tender_id UUID NOT NULL REFERENCES tender(id) ON DELETE CASCADE,
     author_type author_type NOT NULL,
     author_id UUID NOT NULL REFERENCES employee(id) ON DELETE CASCADE,
@@ -85,8 +84,16 @@ CREATE TABLE IF NOT EXISTS bid_history (
 
 CREATE TABLE IF NOT EXISTS bid_review (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    bid_id UUID NOT NULL,
+    bid_id UUID NOT NULL REFERENCES bid(id) ON DELETE CASCADE,
     description TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
+
+CREATE TABLE IF NOT EXISTS bid_employee_decision (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    bid_id uuid NOT NULL REFERENCES bid(id) ON DELETE CASCADE,
+    employee_id uuid NOT NULL REFERENCES bid(id) ON DELETE CASCADE,
+    decision bid_decision NOT NULL,
+    UNIQUE (bid_id, employee_id)
+);
