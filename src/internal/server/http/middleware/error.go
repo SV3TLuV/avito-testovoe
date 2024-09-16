@@ -16,11 +16,11 @@ func ErrorHandlerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			switch {
 			case errors.Is(err, model.ErrBadRequest), errors.Is(err, echo.ErrBadRequest):
 				status = http.StatusBadRequest
-			case errors.Is(err, model.ErrUserNotExists):
+			case errors.Is(err, model.ErrNotFound):
 				status = http.StatusNotFound
 			case errors.Is(err, model.ErrForbidden), errors.Is(err, echo.ErrForbidden):
 				status = http.StatusForbidden
-			case errors.Is(err, model.ErrNotFound), errors.Is(err, echo.ErrNotFound):
+			case errors.Is(err, model.ErrUserNotExists), errors.Is(err, echo.ErrNotFound):
 				status = http.StatusUnauthorized
 			}
 

@@ -40,7 +40,7 @@ func (repo *employeeRepository) GetByUsername(ctx context.Context, username stri
 	tr := repo.getter.DefaultTrOrDB(ctx, repo.pool)
 	err = pgxscan.Get(ctx, tr, &employee, sql, args...)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, errors.Wrap(model.ErrNotFound, "employee not found")
+		return nil, errors.Wrap(model.ErrUserNotExists, "employee not found")
 	}
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to execute query")
