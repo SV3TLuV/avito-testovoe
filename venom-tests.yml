@@ -309,7 +309,7 @@ testcases:
         assertions:
           - result.statuscode ShouldEqual 401
           - result.bodyjson ShouldContainKey reason
-  #USER HAS NO RIGHTS
+  #USER HAS NO RIGHTS (403)
   - name: /tenders/new USER CAN'T CREATE
     steps:
       - type: http
@@ -328,4 +328,76 @@ testcases:
         timeout: "{{.base_timeout}}"
         assertions:
           - result.statuscode ShouldEqual 403
+          - result.bodyjson ShouldContainKey reason
+
+#GET STATUS AND UPDATE STATUS
+  #OK (200)
+  - name: /tenders/status CREATED
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders/14a22160-dcc3-41b0-9813-80860919b306/status?username=user2"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldEqual "Created"
+  - name: /tenders/status PUBLISHED
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders/1e40faa5-c355-4dfc-bf60-7f3e2774da46/status"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldEqual "Published"
+  - name: /tenders/status CLOSED
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders/21fff1f2-7ccf-4be1-9406-628a1847587c/status?username=user2"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldEqual "Closed"
+  #USER NOT FOUND (401)
+  - name: /tenders/status INVALID USER
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders/14a22160-dcc3-41b0-9813-80860919b306/status?username=bad_user"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 401
+          - result.bodyjson ShouldContainKey reason
+  #USER HAS NO RIGHTS (403)
+  - name: /tenders/status NO ACCESS
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders/14a22160-dcc3-41b0-9813-80860919b306/status?username=user4"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 403
+          - result.bodyjson ShouldContainKey reason
+  #TENDER NOT FOUND (404)
+  - name: /tenders/status TENDER NOT FOUND
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/tenders/10000000-0000-0000-0000-000000000000/status?username=user1"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 404
           - result.bodyjson ShouldContainKey reason
