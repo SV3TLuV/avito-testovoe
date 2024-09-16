@@ -32,7 +32,7 @@ type BidRepository interface {
 	Edit(ctx context.Context, entity model.Bid) (*model.Bid, error)
 	UpdateStatus(ctx context.Context, bidID uuid.UUID, status enum.BidStatus) (*model.Bid, error)
 	SubmitDecision(ctx context.Context, bidID uuid.UUID, decision enum.BidDecision) error
-	Feedback(ctx context.Context, bidID, employeeID uuid.UUID, feedback string) error
+	Feedback(ctx context.Context, bidID uuid.UUID, feedback string) error
 }
 
 type EmployeeRepository interface {

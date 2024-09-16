@@ -11,6 +11,9 @@ docker-stop:
 	docker stop $(shell docker ps -q --filter "ancestor=$(DOCKER_IMAGE_NAME)")
 	docker rm $(shell docker ps -a -q --filter "ancestor=$(DOCKER_IMAGE_NAME)")
 
+migrate:
+	go run ./src/cmd/migrate/main.go
+
 run:
 	go run ./src/cmd/api/main.go
 

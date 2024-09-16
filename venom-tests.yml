@@ -1569,7 +1569,70 @@ testcases:
 
 #GET AUTHOR REVIEWS
   #OK (200)
+  - name: /bids GET AUTHOR REVIEWS
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/reviews?authorUsername=user2&requesterUsername=user3"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
   #BAD REQUEST (400)
+  - name: /bids GET AUTHOR REVIEWS WITHOUT REQUESTER USERNAME
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/reviews?authorUsername=user2"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /bids GET AUTHOR REVIEWS WITHOUT AUTHOR USERNAME
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/reviews?requesterUsername=user3"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
   #USER NOT FOUND (401)
+  - name: /bids GET AUTHOR REVIEWS INVALID REQUESTER USERNAME
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/reviews?authorUsername=user2&requesterUsername=bad_user"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 401
+          - result.bodyjson ShouldContainKey reason
+  - name: /bids GET AUTHOR REVIEWS INVALID AUTHOR USERNAME
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/reviews?authorUsername=bad_user&requesterUsername=user3"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 401
+          - result.bodyjson ShouldContainKey reason
   #USER HAS NO RIGHTS (403)
+  - name: /bids GET AUTHOR REVIEWS USER HASN'T RIGHTS
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/reviews?authorUsername=user2&requesterUsername=user4"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 403
+          - result.bodyjson ShouldContainKey reason
   #NOT FOUND (404)
+  - name: /bids GET AUTHOR REVIEWS NOT EXISTS TENDER
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/00000000-0000-0000-8ef9-098babceef1a/reviews?authorUsername=user2&requesterUsername=user3"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 404
+          - result.bodyjson ShouldContainKey reason
