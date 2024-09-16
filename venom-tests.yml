@@ -944,8 +944,66 @@ testcases:
 
 #GET MY
   #OK (200)
+  - name: /bids/my RETURN ARRAY
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/my?username=user3"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+  - name: /bids/my RETURN ARRAY WITH LIMIT
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/my?username=user3&limit=1"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldBeArray
+          - result.bodyjson ShouldNotBeNil
+          - or:
+              - result.bodyjson ShouldHaveLength 0
+              - result.bodyjson ShouldHaveLength 1
   #BAD REQUEST (400)
+  - name: /bids/my WITHOUT USERNAME
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/my"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /bids/my WITH INVALID LIMIT
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/my?limit=-1&username=user3"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /bids/my WITH INVALID OFFSET
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/my?offset=-1&username=user3"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
   #USER NOT FOUND (401)
+  - name: /bids/my WITH INVALID USERNAME
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/my?username=bad_user"
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 401
+          - result.bodyjson ShouldContainKey reason
 
 #GET TENDER BID LIST
   #OK (200)
