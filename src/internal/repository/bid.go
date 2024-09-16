@@ -194,7 +194,7 @@ func (repo *bidRepository) GetTenderOwnerId(ctx context.Context, bidID uuid.UUID
 }
 
 func (repo *bidRepository) GetByVersion(ctx context.Context, bidID uuid.UUID, version uint64) (*model.Bid, error) {
-	if bid, err := repo.GetById(ctx, bidID); err == nil {
+	if bid, err := repo.GetById(ctx, bidID); err == nil && bid.Version == version {
 		return bid, nil
 	}
 
