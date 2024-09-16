@@ -654,3 +654,108 @@ testcases:
           - result.bodyjson ShouldContainKey reason
 
 #ROLLBACK
+  #OK (200)
+  - name: /tenders/ ROLLBACK
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/cd6b7929-514e-4d78-8ba8-2f682fc51126/rollback/1?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.id ShouldNotBeEmpty
+          - result.bodyjson.name ShouldEqual "ИСТОРИЯ 1"
+          - result.bodyjson.description ShouldEqual "ОПИСАНИЕ ТЕНДЕРА"
+          - result.bodyjson.status ShouldEqual "Created"
+          - result.bodyjson.serviceType ShouldEqual "Manufacture"
+          - result.bodyjson.version ShouldNotEqual 1
+          - result.bodyjson ShouldContainKey createdAt
+  - name: /tenders/ ROLLBACK
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/cd6b7929-514e-4d78-8ba8-2f682fc51126/rollback/2?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.id ShouldNotBeEmpty
+          - result.bodyjson.name ShouldEqual "Обновленный тестовый тендер"
+          - result.bodyjson.description ShouldEqual "ОПИСАНИЕ ТЕНДЕРА"
+          - result.bodyjson.status ShouldEqual "Created"
+          - result.bodyjson.serviceType ShouldEqual "Manufacture"
+          - result.bodyjson.version ShouldNotEqual 1
+          - result.bodyjson ShouldContainKey createdAt
+  #BAD REQUEST (400)
+  - name: /tenders/ ROLLBACK INVALID VERSION
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/cd6b7929-514e-4d78-8ba8-2f682fc51126/rollback/0?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /tenders/ ROLLBACK WITHOUT USERNAME
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/cd6b7929-514e-4d78-8ba8-2f682fc51126/rollback/1"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /tenders/ ROLLBACK WITH INVALID TENDER ID
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/00000000-0000-0000-0000-000000000000/rollback/1?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  #USER NOT FOUND (401)
+  - name: /tenders/ ROLLBACK WITH INVALID USERNAME
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/cd6b7929-514e-4d78-8ba8-2f682fc51126/rollback/1?username=bad_user"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 401
+          - result.bodyjson ShouldContainKey reason
+  #USER HAS NO RIGHTS (403)
+  - name: /tenders/ ROLLBACK USER HASN'T RIGHTS
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/cd6b7929-514e-4d78-8ba8-2f682fc51126/rollback/1?username=user4"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 403
+          - result.bodyjson ShouldContainKey reason
+  #NOT FOUND (404)
+  - name: /tenders/ ROLLBACK NOT EXISTS TENDER
+    steps:
+      - type: http
+        method: PUT
+        url: "{{.base_url}}/api/tenders/10000000-0000-0000-0000-000000000000/rollback/1?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 404
+          - result.bodyjson ShouldContainKey reason
