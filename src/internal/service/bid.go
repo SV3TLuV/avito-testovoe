@@ -43,7 +43,7 @@ func (s *bidService) GetTenderList(ctx context.Context, tenderID uuid.UUID,
 		return nil, err
 	}
 
-	organization, err := s.employeeRepo.GetUserOrganization(ctx, employee.Username)
+	organization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, employee.Username)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return nil, errors.Wrap(model.ErrForbidden, "user has no access")
@@ -70,7 +70,7 @@ func (s *bidService) GetStatus(ctx context.Context, bidID uuid.UUID, username st
 		return "", err
 	}
 
-	organization, err := s.employeeRepo.GetUserOrganization(ctx, employee.Username)
+	organization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, employee.Username)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return "", errors.Wrap(model.ErrForbidden, "user has no access")
@@ -78,7 +78,17 @@ func (s *bidService) GetStatus(ctx context.Context, bidID uuid.UUID, username st
 		return "", err
 	}
 
-	if statusResponse.AuthorID != employee.ID && statusResponse.OrganizationID != organization.ID {
+	authorOrganization, err := s.employeeRepo.GetUserOrganizationById(ctx, statusResponse.AuthorID)
+	if err != nil {
+		return "", err
+	}
+
+	isAuthor := statusResponse.AuthorID == employee.ID
+	isFromAuthorOrganization := authorOrganization.ID == organization.ID
+	isFromTenderOrganization := statusResponse.OrganizationID == organization.ID
+	isTenderOrganizationHasAccess := statusResponse.Status == enum.BidPublished && isFromTenderOrganization
+
+	if !isAuthor && !isFromAuthorOrganization && !isTenderOrganizationHasAccess {
 		return "", errors.Wrap(model.ErrForbidden, "access denied to bid status")
 	}
 
@@ -91,12 +101,12 @@ func (s *bidService) GetTenderReviews(ctx context.Context, limit, offset uint,
 	if err != nil {
 		return nil, err
 	}
-	authorOrganization, err := s.employeeRepo.GetUserOrganization(ctx, author)
+	authorOrganization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, author)
 	if err != nil {
 		return nil, err
 	}
 
-	requesterOrganization, err := s.employeeRepo.GetUserOrganization(ctx, requester)
+	requesterOrganization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, requester)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +123,7 @@ func (s *bidService) Create(ctx context.Context, entity model.Bid) (*model.Bid, 
 		return nil, err
 	}
 
-	organization, err := s.employeeRepo.GetUserOrganization(ctx, employee.Username)
+	organization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, employee.Username)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return nil, errors.Wrap(model.ErrForbidden, "user has no access")
@@ -155,7 +165,7 @@ func (s *bidService) UpdateStatus(ctx context.Context, bidID uuid.UUID, status e
 		return nil, err
 	}
 
-	organization, err := s.employeeRepo.GetUserOrganization(ctx, employee.Username)
+	organization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, employee.Username)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return nil, errors.Wrap(model.ErrForbidden, "user has no access")
@@ -186,7 +196,7 @@ func (s *bidService) SubmitDecision(ctx context.Context, bidID uuid.UUID, decisi
 		return nil, err
 	}
 
-	organization, err := s.employeeRepo.GetUserOrganization(ctx, employee.Username)
+	organization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, employee.Username)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return nil, errors.Wrap(model.ErrForbidden, "user has no access")
@@ -226,7 +236,7 @@ func (s *bidService) Feedback(ctx context.Context, bidID uuid.UUID, feedback, us
 		return nil, err
 	}
 
-	organization, err := s.employeeRepo.GetUserOrganization(ctx, employee.Username)
+	organization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, employee.Username)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return nil, errors.Wrap(model.ErrForbidden, "user has no access")

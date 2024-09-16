@@ -56,7 +56,7 @@ func (s *tenderService) GetStatus(ctx context.Context, tenderID uuid.UUID, usern
 		return "", err
 	}
 
-	organization, err := s.employeeRepo.GetUserOrganization(ctx, employee.Username)
+	organization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, employee.Username)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return "", errors.Wrap(model.ErrForbidden, "user has no access")
@@ -77,7 +77,7 @@ func (s *tenderService) Create(ctx context.Context, entity model.Tender, usernam
 		return nil, err
 	}
 
-	organization, err := s.employeeRepo.GetUserOrganization(ctx, employee.Username)
+	organization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, employee.Username)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return nil, errors.Wrap(model.ErrForbidden, "user has no access")
@@ -102,7 +102,7 @@ func (s *tenderService) Edit(ctx context.Context, entity model.Tender, username 
 		return nil, err
 	}
 
-	organization, err := s.employeeRepo.GetUserOrganization(ctx, employee.Username)
+	organization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, employee.Username)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return nil, errors.Wrap(model.ErrForbidden, "user has no access")
@@ -134,7 +134,7 @@ func (s *tenderService) UpdateStatus(ctx context.Context, tenderID uuid.UUID,
 		return nil, err
 	}
 
-	organization, err := s.employeeRepo.GetUserOrganization(ctx, employee.Username)
+	organization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, employee.Username)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return nil, errors.Wrap(model.ErrForbidden, "user has no access")
@@ -171,7 +171,7 @@ func (s *tenderService) Rollback(ctx context.Context, tenderID uuid.UUID,
 		return nil, err
 	}
 
-	organization, err := s.employeeRepo.GetUserOrganization(ctx, employee.Username)
+	organization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, employee.Username)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return nil, errors.Wrap(model.ErrForbidden, "user has no access")

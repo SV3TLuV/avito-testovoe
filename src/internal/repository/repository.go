@@ -38,5 +38,6 @@ type BidRepository interface {
 type EmployeeRepository interface {
 	GetById(ctx context.Context, id uuid.UUID) (*model.Employee, error)
 	GetByUsername(ctx context.Context, username string) (*model.Employee, error)
-	GetUserOrganization(ctx context.Context, username string) (*model.Organization, error)
+	GetUserOrganizationById(ctx context.Context, employeeID uuid.UUID) (*model.Organization, error)
+	GetUserOrganizationByUsername(ctx context.Context, username string) (*model.Organization, error)
 }
