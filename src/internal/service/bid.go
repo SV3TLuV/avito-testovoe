@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"tender_api/src/internal/model"
@@ -12,18 +13,21 @@ import (
 var _ BidService = (*bidService)(nil)
 
 type bidService struct {
-	repo         repository.BidRepository
+	bidRepo      repository.BidRepository
 	tenderRepo   repository.TenderRepository
 	employeeRepo repository.EmployeeRepository
+	trManager    *manager.Manager
 }
 
 func NewBidService(repo repository.BidRepository,
 	tenderRepo repository.TenderRepository,
-	employeeRepo repository.EmployeeRepository) *bidService {
+	employeeRepo repository.EmployeeRepository,
+	trManager *manager.Manager) *bidService {
 	return &bidService{
-		repo:         repo,
+		bidRepo:      repo,
 		employeeRepo: employeeRepo,
 		tenderRepo:   tenderRepo,
+		trManager:    trManager,
 	}
 }
 
@@ -33,7 +37,7 @@ func (s *bidService) GetMy(ctx context.Context, limit, offset uint, username str
 		return nil, err
 	}
 
-	return s.repo.GetMy(ctx, limit, offset, employee.ID)
+	return s.bidRepo.GetMy(ctx, limit, offset, employee.ID)
 }
 
 func (s *bidService) GetTenderList(ctx context.Context, tenderID uuid.UUID,
@@ -56,7 +60,7 @@ func (s *bidService) GetTenderList(ctx context.Context, tenderID uuid.UUID,
 		return nil, err
 	}
 
-	return s.repo.GetTenderBidList(ctx, tenderID, limit, offset, employee.ID, organization.ID)
+	return s.bidRepo.GetTenderBidList(ctx, tenderID, limit, offset, employee.ID, organization.ID)
 }
 
 func (s *bidService) GetStatus(ctx context.Context, bidID uuid.UUID, username string) (enum.BidStatus, error) {
@@ -65,7 +69,7 @@ func (s *bidService) GetStatus(ctx context.Context, bidID uuid.UUID, username st
 		return "", err
 	}
 
-	statusResponse, err := s.repo.GetStatus(ctx, bidID)
+	statusResponse, err := s.bidRepo.GetStatus(ctx, bidID)
 	if err != nil {
 		return "", err
 	}
@@ -123,7 +127,7 @@ func (s *bidService) GetTenderReviews(ctx context.Context, limit, offset uint,
 		return nil, errors.Wrap(model.ErrForbidden, "access denied")
 	}
 
-	return s.repo.GetTenderReviews(ctx, limit, offset, tenderID, employeeAuthor.ID, requesterOrganization.ID)
+	return s.bidRepo.GetTenderReviews(ctx, limit, offset, tenderID, employeeAuthor.ID, requesterOrganization.ID)
 }
 
 func (s *bidService) Create(ctx context.Context, entity model.Bid) (*model.Bid, error) {
@@ -148,7 +152,7 @@ func (s *bidService) Create(ctx context.Context, entity model.Bid) (*model.Bid, 
 		return nil, err
 	}
 
-	return s.repo.Create(ctx, entity)
+	return s.bidRepo.Create(ctx, entity)
 }
 
 func (s *bidService) Edit(ctx context.Context, entity model.Bid, username string) (*model.Bid, error) {
@@ -157,7 +161,7 @@ func (s *bidService) Edit(ctx context.Context, entity model.Bid, username string
 		return nil, err
 	}
 
-	bid, err := s.repo.GetById(ctx, entity.ID)
+	bid, err := s.bidRepo.GetById(ctx, entity.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +169,7 @@ func (s *bidService) Edit(ctx context.Context, entity model.Bid, username string
 		return nil, errors.Wrap(model.ErrForbidden, "access denied")
 	}
 
-	return s.repo.Edit(ctx, entity)
+	return s.bidRepo.Edit(ctx, entity)
 }
 
 func (s *bidService) UpdateStatus(ctx context.Context, bidID uuid.UUID, status enum.BidStatus, username string) (*model.Bid, error) {
@@ -182,12 +186,12 @@ func (s *bidService) UpdateStatus(ctx context.Context, bidID uuid.UUID, status e
 		return nil, err
 	}
 
-	bid, err := s.repo.GetById(ctx, bidID)
+	bid, err := s.bidRepo.GetById(ctx, bidID)
 	if err != nil {
 		return nil, err
 	}
 
-	ownerId, err := s.repo.GetTenderOrganizationId(ctx, bidID)
+	ownerId, err := s.bidRepo.GetTenderOrganizationId(ctx, bidID)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +200,7 @@ func (s *bidService) UpdateStatus(ctx context.Context, bidID uuid.UUID, status e
 		return nil, errors.Wrap(model.ErrForbidden, "access denied")
 	}
 
-	return s.repo.UpdateStatus(ctx, bidID, status)
+	return s.bidRepo.UpdateStatus(ctx, bidID, status)
 }
 
 func (s *bidService) SubmitDecision(ctx context.Context, bidID uuid.UUID, decision enum.BidDecision, username string) (*model.Bid, error) {
@@ -213,12 +217,12 @@ func (s *bidService) SubmitDecision(ctx context.Context, bidID uuid.UUID, decisi
 		return nil, err
 	}
 
-	bid, err := s.repo.GetById(ctx, bidID)
+	bid, err := s.bidRepo.GetById(ctx, bidID)
 	if err != nil {
 		return nil, err
 	}
 
-	ownerId, err := s.repo.GetTenderOrganizationId(ctx, bidID)
+	ownerId, err := s.bidRepo.GetTenderOrganizationId(ctx, bidID)
 	if err != nil {
 		return nil, err
 	}
@@ -227,17 +231,47 @@ func (s *bidService) SubmitDecision(ctx context.Context, bidID uuid.UUID, decisi
 		return nil, errors.Wrap(model.ErrForbidden, "access denied")
 	}
 
-	//quorum
+	err = s.trManager.Do(ctx, func(ctx context.Context) error {
+		if err := s.bidRepo.SubmitDecision(ctx, bidID, employee.ID, decision); err != nil {
+			return errors.Wrap(err, "submit decision")
+		}
 
-	if err := s.repo.SubmitDecision(ctx, bidID, employee.ID, decision); err != nil {
-		return nil, err
+		if decision == enum.BidRejected {
+			_, err = s.bidRepo.UpdateStatus(ctx, bidID, enum.BidCanceled)
+			if err != nil {
+				return errors.Wrap(err, "cancel bid")
+			}
+			return nil
+		}
+
+		decisions, err := s.bidRepo.GetDecisions(ctx, bidID)
+		if err != nil {
+			return errors.Wrap(err, "get decisions")
+		}
+
+		quorum, err := s.bidRepo.GetQuorum(ctx, bidID)
+		if err != nil {
+			return errors.Wrap(err, "get quorum")
+		}
+
+		if len(decisions) >= quorum {
+			_, err = s.bidRepo.UpdateStatus(ctx, bidID, enum.BidCanceled)
+			if err != nil {
+				return errors.Wrap(err, "approve bid")
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "transaction failed")
 	}
 
-	return s.repo.GetById(ctx, bidID)
+	return s.bidRepo.GetById(ctx, bidID)
 }
 
 func (s *bidService) Feedback(ctx context.Context, bidID uuid.UUID, feedback, username string) (*model.Bid, error) {
-	ownerId, err := s.repo.GetTenderOrganizationId(ctx, bidID)
+	ownerId, err := s.bidRepo.GetTenderOrganizationId(ctx, bidID)
 	if err != nil {
 		return nil, err
 	}
@@ -258,15 +292,15 @@ func (s *bidService) Feedback(ctx context.Context, bidID uuid.UUID, feedback, us
 		return nil, errors.Wrap(model.ErrForbidden, "user has no access")
 	}
 
-	if err := s.repo.Feedback(ctx, bidID, feedback); err != nil {
+	if err := s.bidRepo.Feedback(ctx, bidID, feedback); err != nil {
 		return nil, err
 	}
 
-	return s.repo.GetById(ctx, bidID)
+	return s.bidRepo.GetById(ctx, bidID)
 }
 
 func (s *bidService) Rollback(ctx context.Context, bidID uuid.UUID, version uint64, username string) (*model.Bid, error) {
-	bidToRollback, err := s.repo.GetByVersion(ctx, bidID, version)
+	bidToRollback, err := s.bidRepo.GetByVersion(ctx, bidID, version)
 	if err != nil {
 		return nil, err
 	}
@@ -280,7 +314,7 @@ func (s *bidService) Rollback(ctx context.Context, bidID uuid.UUID, version uint
 		return nil, errors.Wrap(model.ErrForbidden, "user has no access")
 	}
 
-	updated, err := s.repo.Edit(ctx, *bidToRollback)
+	updated, err := s.bidRepo.Edit(ctx, *bidToRollback)
 	if err != nil {
 		return nil, err
 	}

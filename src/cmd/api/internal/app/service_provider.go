@@ -86,7 +86,8 @@ func (p *ServiceProvider) BidService() service.BidService {
 		p.bidService = service.NewBidService(
 			p.BidRepo(),
 			p.TenderRepo(),
-			p.EmployeeRepo())
+			p.EmployeeRepo(),
+			p.TransactionManager())
 	}
 	return p.bidService
 }
