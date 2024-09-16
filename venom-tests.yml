@@ -1142,10 +1142,113 @@ testcases:
 
 #EDIT BID
   #OK (200)
+  - name: /bids/ EDIT
+    steps:
+      - type: http
+        method: PATCH
+        url: "{{.base_url}}/api/bids/d2c9b84e-df2b-4409-b19b-34ec9dc51198/edit?username=user3"
+        headers:
+          Content-Type: application/json
+        body: >
+          {
+            "name": "Обновленное тестовое предложение",
+            "description": "ОПИСАНИЕ ПРЕДЛОЖЕНИЯ"
+          }
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.id ShouldEqual "d2c9b84e-df2b-4409-b19b-34ec9dc51198"
+          - result.bodyjson.name ShouldEqual "Обновленное тестовое предложение"
+          - result.bodyjson.status ShouldEqual "Created"
+          - result.bodyjson.authorType ShouldEqual "Organization"
+          - result.bodyjson.authorId ShouldEqual "550e8400-e29b-41d4-a716-446655440003"
+          - result.bodyjson.version ShouldNotEqual 1
+          - result.bodyjson ShouldContainKey createdAt
   #BAD REQUEST (400)
+  - name: /bids/ EDIT WITHOUT USERNAME
+    steps:
+      - type: http
+        method: PATCH
+        url: "{{.base_url}}/api/bids/d2c9b84e-df2b-4409-b19b-34ec9dc51198/edit"
+        headers:
+          Content-Type: application/json
+        body: >
+          {
+            "name": "Обновленное тестовое предложение",
+            "description": "ОПИСАНИЕ ПРЕДЛОЖЕНИЯ"
+          }
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /bids/ EDIT INVALID BID ID
+    steps:
+      - type: http
+        method: PATCH
+        url: "{{.base_url}}/api/bids/00000000-0000-0000-0000-000000000000/edit?username=user3"
+        headers:
+          Content-Type: application/json
+        body: >
+          {
+            "tenderId": "cd6b7929-514e-4d78-8ba8-2f682fc51126",
+            "name": "Обновленное тестовое предложение",
+            "description": "ОПИСАНИЕ ПРЕДЛОЖЕНИЯ"
+          }
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
   #USER NOT FOUND (401)
+  - name: /bids/ EDIT WITH INVALID USERNAME
+    steps:
+      - type: http
+        method: PATCH
+        url: "{{.base_url}}/api/bids/d2c9b84e-df2b-4409-b19b-34ec9dc51198/edit?username=bad_user"
+        headers:
+          Content-Type: application/json
+        body: >
+          {
+            "name": "Обновленное тестовое предложение",
+            "description": "ОПИСАНИЕ ПРЕДЛОЖЕНИЯ"
+          }
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 401
+          - result.bodyjson ShouldContainKey reason
   #USER HAS NO RIGHTS (403)
+  - name: /bids/ EDIT USER HASN'T RIGHTS
+    steps:
+      - type: http
+        method: PATCH
+        url: "{{.base_url}}/api/bids/d2c9b84e-df2b-4409-b19b-34ec9dc51198/edit?username=user4"
+        headers:
+          Content-Type: application/json
+        body: >
+          {
+            "name": "Обновленное тестовое предложение",
+            "description": "ОПИСАНИЕ ПРЕДЛОЖЕНИЯ"
+          }
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 403
+          - result.bodyjson ShouldContainKey reason
   #NOT FOUND (404)
+  - name: /bids/ EDIT NOT EXISTS BID
+    steps:
+      - type: http
+        method: PATCH
+        url: "{{.base_url}}/api/bids/10000000-0000-0000-0000-000000000000/edit?username=user3"
+        headers:
+          Content-Type: application/json
+        body: >
+          {
+            "name": "Обновленное тестовое предложение",
+            "description": "ОПИСАНИЕ ПРЕДЛОЖЕНИЯ"
+          }
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 404
+          - result.bodyjson ShouldContainKey reason
 
 #SUBMIT DECISION
   #OK (200)
