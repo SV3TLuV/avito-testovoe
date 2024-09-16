@@ -133,7 +133,11 @@ func (s *bidService) Edit(ctx context.Context, entity model.Bid, username string
 		return nil, err
 	}
 
-	if entity.AuthorID != employee.ID {
+	bid, err := s.repo.GetById(ctx, entity.ID)
+	if err != nil {
+		return nil, err
+	}
+	if bid.AuthorID != employee.ID {
 		return nil, errors.Wrap(model.ErrForbidden, "access denied")
 	}
 
