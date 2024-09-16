@@ -145,7 +145,7 @@ func (repo *bidRepository) GetTenderReviews(ctx context.Context, limit, offset u
 
 func (repo *bidRepository) GetById(ctx context.Context, bidID uuid.UUID) (*model.Bid, error) {
 	query := goqu.Dialect("postgres").
-		From("bid_history").
+		From("bid").
 		Where(goqu.Ex{"id": bidID})
 
 	sql, args, err := query.ToSQL()
@@ -209,9 +209,9 @@ func (repo *bidRepository) GetByVersion(ctx context.Context, bidID uuid.UUID, ve
 		return nil, errors.Wrap(err, "failed to build query")
 	}
 
-	var bid model.Bid
+	var history model.BidHistory
 	tr := repo.getter.DefaultTrOrDB(ctx, repo.pool)
-	err = pgxscan.Get(ctx, tr, &bid, sql, args...)
+	err = pgxscan.Get(ctx, tr, &history, sql, args...)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, errors.Wrap(model.ErrNotFound, "bid not found")
 	}
@@ -219,6 +219,7 @@ func (repo *bidRepository) GetByVersion(ctx context.Context, bidID uuid.UUID, ve
 		return nil, errors.Wrap(err, "failed to execute query")
 	}
 
+	bid := converter.ToBidFromBidHistory(history)
 	return &bid, nil
 }
 
@@ -350,7 +351,8 @@ func (repo *bidRepository) Feedback(ctx context.Context, bidID uuid.UUID, feedba
 }
 
 func (repo *bidRepository) archive(ctx context.Context, entity model.Bid) error {
-	record := converter.ToBidRecordFromBid(entity)
+	bidHistory := converter.ToBidHistoryFromBid(entity)
+	record := converter.ToBidHistoryRecordFromBidHistory(bidHistory)
 	query := goqu.Dialect("postgres").
 		Insert("bid_history").
 		Rows(record)
