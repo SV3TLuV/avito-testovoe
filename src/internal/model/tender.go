@@ -18,6 +18,19 @@ type Tender struct {
 	UpdatedAt      time.Time
 }
 
+type TenderHistory struct {
+	ID             uuid.UUID
+	TenderID       uuid.UUID
+	Name           string
+	Description    string
+	ServiceType    enum.TenderServiceType
+	Status         enum.TenderStatus
+	OrganizationID uuid.UUID
+	Version        uint64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 type TenderView struct {
 	ID          uuid.UUID              `json:"id"`
 	Name        string                 `json:"name"`

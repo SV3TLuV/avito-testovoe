@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS tender (
 
 CREATE TABLE IF NOT EXISTS tender_history (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    tender_id UUID NOT NULL REFERENCES tender(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     description TEXT,
     service_type tender_service_type NOT NULL,
@@ -43,7 +44,8 @@ CREATE TABLE IF NOT EXISTS tender_history (
     organization_id UUID NOT NULL REFERENCES organization(id) ON DELETE CASCADE,
     version INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (tender_id, version)
 );
 
 CREATE TABLE IF NOT EXISTS employee_tender (
@@ -68,6 +70,7 @@ CREATE TABLE IF NOT EXISTS bid (
 
 CREATE TABLE IF NOT EXISTS bid_history (
     id UUID NOT NULL,
+    bid_id UUID NOT NULL REFERENCES bid(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     description TEXT,
     status bid_status NOT NULL,
@@ -76,7 +79,8 @@ CREATE TABLE IF NOT EXISTS bid_history (
     author_id UUID NOT NULL REFERENCES employee(id) ON DELETE CASCADE,
     version INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (bid_id, version)
 );
 
 CREATE TABLE IF NOT EXISTS bid_review (

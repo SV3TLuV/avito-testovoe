@@ -113,7 +113,7 @@ func (repo *tenderRepository) GetStatus(ctx context.Context, tenderID uuid.UUID)
 
 func (repo *tenderRepository) GetById(ctx context.Context, tenderID uuid.UUID) (*model.Tender, error) {
 	query := goqu.Dialect("postgres").
-		From("tender_history").
+		From("tender").
 		Where(goqu.Ex{"id": tenderID})
 
 	sql, args, err := query.ToSQL()
@@ -150,9 +150,9 @@ func (repo *tenderRepository) GetByVersion(ctx context.Context, tenderID uuid.UU
 		return nil, errors.Wrap(err, "failed to build query")
 	}
 
-	var tender model.Tender
+	var history model.TenderHistory
 	tr := repo.getter.DefaultTrOrDB(ctx, repo.pool)
-	err = pgxscan.Get(ctx, tr, &tender, sql, args...)
+	err = pgxscan.Get(ctx, tr, &history, sql, args...)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, errors.Wrap(model.ErrNotFound, "tender not found")
 	}
@@ -160,6 +160,7 @@ func (repo *tenderRepository) GetByVersion(ctx context.Context, tenderID uuid.UU
 		return nil, errors.Wrap(err, "failed to execute query")
 	}
 
+	tender := converter.ToTenderFromTenderHistory(history)
 	return &tender, nil
 }
 
@@ -280,7 +281,8 @@ func (repo *tenderRepository) UpdateStatus(ctx context.Context, tenderID uuid.UU
 }
 
 func (repo *tenderRepository) archive(ctx context.Context, entity model.Tender) error {
-	record := converter.ToTenderRecordFromTender(entity)
+	tenderHistory := converter.ToTenderHistoryFromTender(entity)
+	record := converter.ToTenderHistoryRecordFromTenderHistory(tenderHistory)
 	query := goqu.Dialect("postgres").
 		Insert("tender_history").
 		Rows(record)

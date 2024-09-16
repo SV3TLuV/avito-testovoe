@@ -110,7 +110,7 @@ func (s *tenderService) Edit(ctx context.Context, entity model.Tender, username 
 		return nil, err
 	}
 
-	tender, err := s.repo.GetStatus(ctx, entity.ID)
+	tender, err := s.repo.GetById(ctx, entity.ID)
 	if err != nil {
 		return nil, err
 	}

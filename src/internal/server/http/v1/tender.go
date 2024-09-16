@@ -188,6 +188,7 @@ func (controller *tenderController) Edit(ctx echo.Context) error {
 		return model.ErrBadRequest
 	}
 	request.TenderID = tenderID
+	request.Username = ctx.QueryParam("username")
 
 	if err := ctx.Validate(&request); err != nil {
 		return model.ErrBadRequest
