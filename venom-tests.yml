@@ -1573,7 +1573,7 @@ testcases:
     steps:
       - type: http
         method: GET
-        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/reviews?authorUsername=user2&requesterUsername=user3"
+        url: "{{.base_url}}/api/bids/cd6b7929-514e-4d78-8ba8-2f682fc51126/reviews?authorUsername=user3&requesterUsername=user2"
         timeout: "{{.base_timeout}}"
         assertions:
           - result.statuscode ShouldEqual 200
