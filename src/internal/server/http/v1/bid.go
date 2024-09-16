@@ -206,6 +206,8 @@ func (controller *bidController) SubmitDecision(ctx echo.Context) error {
 		return model.ErrBadRequest
 	}
 	request.BidID = bidID
+	request.Username = ctx.QueryParam("username")
+	request.Decision = enum.BidDecision(ctx.QueryParam("decision"))
 
 	if err := ctx.Validate(&request); err != nil {
 		return model.ErrBadRequest
