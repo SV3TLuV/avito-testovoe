@@ -57,12 +57,18 @@ func (repo *bidRepository) GetTenderBidList(ctx context.Context, tenderID uuid.U
 		Join(
 			goqu.T("tender"),
 			goqu.On(goqu.Ex{"tender.id": goqu.I("bid.tender_id")})).
+		Join(
+			goqu.T("organization_responsible"),
+			goqu.On(goqu.Ex{"organization_responsible.user_id": goqu.I("bid.author_id")})).
 		Where(
 			goqu.And(
 				goqu.Ex{"bid.tender_id": tenderID},
 				goqu.Or(
 					goqu.Ex{"bid.author_id": employeeID},
-					goqu.Ex{"tender.organization_id": organizationID}))).
+					goqu.Ex{"tender.organization_id": organizationID},
+					goqu.And(
+						goqu.Ex{"bid.status": enum.BidPublished},
+						goqu.Ex{"organization_responsible.organization_id": organizationID})))).
 		Order(goqu.I("bid.name").Asc()).
 		Limit(limit).
 		Offset(offset)

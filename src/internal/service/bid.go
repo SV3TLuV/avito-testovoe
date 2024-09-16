@@ -51,6 +51,11 @@ func (s *bidService) GetTenderList(ctx context.Context, tenderID uuid.UUID,
 		return nil, err
 	}
 
+	_, err = s.tenderRepo.GetById(ctx, tenderID)
+	if err != nil {
+		return nil, err
+	}
+
 	return s.repo.GetTenderBidList(ctx, tenderID, limit, offset, employee.ID, organization.ID)
 }
 
