@@ -334,12 +334,11 @@ func (repo *bidRepository) SubmitDecision(ctx context.Context, bidID uuid.UUID, 
 	return nil
 }
 
-func (repo *bidRepository) Feedback(ctx context.Context, bidID, employeeID uuid.UUID, feedback string) error {
+func (repo *bidRepository) Feedback(ctx context.Context, bidID uuid.UUID, feedback string) error {
 	query := goqu.Dialect("postgres").
 		Insert("bid_review").
 		Rows(goqu.Record{
 			"bid_id":      bidID,
-			"employee_id": employeeID,
 			"description": feedback,
 		})
 

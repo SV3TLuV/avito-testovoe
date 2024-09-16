@@ -118,6 +118,8 @@ func (controller *bidController) GetReviews(ctx echo.Context) error {
 		return model.ErrBadRequest
 	}
 	request.TenderID = tenderID
+	request.AuthorUsername = ctx.QueryParam("authorUsername")
+	request.RequesterUsername = ctx.QueryParam("requesterUsername")
 
 	request.SetDefaults()
 

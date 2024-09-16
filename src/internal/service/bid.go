@@ -97,10 +97,19 @@ func (s *bidService) GetStatus(ctx context.Context, bidID uuid.UUID, username st
 
 func (s *bidService) GetTenderReviews(ctx context.Context, limit, offset uint,
 	tenderID uuid.UUID, author, requester string) ([]model.BidReview, error) {
+	if _, err := s.tenderRepo.GetById(ctx, tenderID); err != nil {
+		return nil, err
+	}
+
 	employeeAuthor, err := s.employeeRepo.GetByUsername(ctx, author)
 	if err != nil {
 		return nil, err
 	}
+
+	if _, err = s.employeeRepo.GetByUsername(ctx, requester); err != nil {
+		return nil, err
+	}
+
 	authorOrganization, err := s.employeeRepo.GetUserOrganizationByUsername(ctx, author)
 	if err != nil {
 		return nil, err
@@ -247,7 +256,7 @@ func (s *bidService) Feedback(ctx context.Context, bidID uuid.UUID, feedback, us
 		return nil, errors.Wrap(model.ErrForbidden, "user has no access")
 	}
 
-	if err := s.repo.Feedback(ctx, bidID, employee.ID, feedback); err != nil {
+	if err := s.repo.Feedback(ctx, bidID, feedback); err != nil {
 		return nil, err
 	}
 
