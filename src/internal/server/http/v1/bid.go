@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"tender_api/src/internal/converter"
 	"tender_api/src/internal/model"
+	"tender_api/src/internal/model/enum"
 	def "tender_api/src/internal/server/http"
 	"tender_api/src/internal/server/http/v1/requests/bid"
 	"tender_api/src/internal/service"
@@ -176,6 +177,8 @@ func (controller *bidController) UpdateStatus(ctx echo.Context) error {
 		return model.ErrBadRequest
 	}
 	request.BidID = bidID
+	request.Username = ctx.QueryParam("username")
+	request.Status = enum.BidStatus(ctx.QueryParam("status"))
 
 	if err := ctx.Validate(&request); err != nil {
 		return model.ErrBadRequest

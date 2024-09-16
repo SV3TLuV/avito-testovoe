@@ -49,7 +49,7 @@ func (repo *bidRepository) GetMy(ctx context.Context, limit, offset uint, employ
 	return bids, nil
 }
 
-func (repo *bidRepository) GetTenderList(ctx context.Context, tenderID uuid.UUID, limit, offset uint,
+func (repo *bidRepository) GetTenderBidList(ctx context.Context, tenderID uuid.UUID, limit, offset uint,
 	employeeID, organizationID uuid.UUID) ([]model.Bid, error) {
 	query := goqu.Dialect("postgres").
 		Select("bid.*").
@@ -173,7 +173,7 @@ func (repo *bidRepository) GetTenderOrganizationId(ctx context.Context, bidID uu
 		Join(
 			goqu.T("tender"),
 			goqu.On(goqu.Ex{"tender.id": goqu.I("bid.tender_id")})).
-		Where(goqu.Ex{"id": bidID})
+		Where(goqu.Ex{"bid.id": bidID})
 
 	sql, args, err := query.ToSQL()
 	if err != nil {
