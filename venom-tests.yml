@@ -956,9 +956,76 @@ testcases:
 
 #GET BID STATUS
   #OK (200)
+  - name: /bids/status GET
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/47cde712-19bd-4341-bbc0-67d5001c9f96/status?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson ShouldEqual "Created"
+  #BAD REQUEST (400)
+  - name: /bids/status GET WITHOUT USERNAME
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/47cde712-19bd-4341-bbc0-67d5001c9f96/status"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
+  - name: /bids/status GET WITH INVALID BID_ID
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/00000000-0000-0000-0000-000000000000/status?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson ShouldContainKey reason
   #USER NOT FOUND (401)
+  - name: /bids/status GET WITH INVALID USERNAME
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/47cde712-19bd-4341-bbc0-67d5001c9f96/status?username=bad_user"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 401
+          - result.bodyjson ShouldContainKey reason
   #USER HAS NO RIGHTS (403)
+  - name: /bids/status GET USER HASN'T RIGHTS
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/47cde712-19bd-4341-bbc0-67d5001c9f96/status?username=user4"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 403
+          - result.bodyjson ShouldContainKey reason
   #NOT FOUND (404)
+  - name: /bids/status GET NOT EXISTS TENDER
+    steps:
+      - type: http
+        method: GET
+        url: "{{.base_url}}/api/bids/10000000-0000-0000-0000-000000000000/status?username=user3"
+        headers:
+          Content-Type: application/json
+        timeout: "{{.base_timeout}}"
+        assertions:
+          - result.statuscode ShouldEqual 404
+          - result.bodyjson ShouldContainKey reason
 
 #UPDATE BID STATUS
   #OK (200)
