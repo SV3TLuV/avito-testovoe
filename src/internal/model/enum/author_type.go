@@ -3,8 +3,8 @@ package enum
 type AuthorType string
 
 const (
-	Organization AuthorType = "organization"
-	User         AuthorType = "user"
+	Organization AuthorType = "Organization"
+	User         AuthorType = "User"
 )
 
 func (val AuthorType) IsValid() bool {
