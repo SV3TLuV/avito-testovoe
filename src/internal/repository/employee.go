@@ -55,10 +55,10 @@ func (repo *employeeRepository) GetUserOrganization(ctx context.Context, usernam
 		From("organization").
 		Join(
 			goqu.T("organization_responsible"),
-			goqu.On(goqu.Ex{"organization_responsible.organization_id": goqu.I("organization.organization_id")})).
+			goqu.On(goqu.Ex{"organization_responsible.organization_id": goqu.I("organization.id")})).
 		Join(
 			goqu.T("employee"),
-			goqu.On(goqu.Ex{"employee.employee_id": goqu.I("organization_responsible.user_id")})).
+			goqu.On(goqu.Ex{"employee.id": goqu.I("organization_responsible.user_id")})).
 		Where(goqu.Ex{"employee.username": username})
 
 	sql, args, err := query.ToSQL()
