@@ -42,11 +42,6 @@ func (s *tenderService) GetMy(ctx context.Context, limit, offset uint, username 
 }
 
 func (s *tenderService) GetStatus(ctx context.Context, tenderID uuid.UUID, username string) (enum.TenderStatus, error) {
-	employee, err := s.employeeRepo.GetByUsername(ctx, username)
-	if err != nil {
-		return "", err
-	}
-
 	statusResponse, err := s.repo.GetStatus(ctx, tenderID)
 	if err != nil {
 		return "", err
@@ -54,6 +49,11 @@ func (s *tenderService) GetStatus(ctx context.Context, tenderID uuid.UUID, usern
 
 	if statusResponse.Status == enum.TenderPublished {
 		return statusResponse.Status, nil
+	}
+
+	employee, err := s.employeeRepo.GetByUsername(ctx, username)
+	if err != nil {
+		return "", err
 	}
 
 	organization, err := s.employeeRepo.GetUserOrganization(ctx, employee.Username)
