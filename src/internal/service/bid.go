@@ -227,7 +227,9 @@ func (s *bidService) SubmitDecision(ctx context.Context, bidID uuid.UUID, decisi
 		return nil, errors.Wrap(model.ErrForbidden, "access denied")
 	}
 
-	if err := s.repo.SubmitDecision(ctx, bidID, decision); err != nil {
+	//quorum
+
+	if err := s.repo.SubmitDecision(ctx, bidID, employee.ID, decision); err != nil {
 		return nil, err
 	}
 

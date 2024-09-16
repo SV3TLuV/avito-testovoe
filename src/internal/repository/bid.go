@@ -312,13 +312,14 @@ func (repo *bidRepository) UpdateStatus(ctx context.Context, bidID uuid.UUID, st
 	return &bid, nil
 }
 
-func (repo *bidRepository) SubmitDecision(ctx context.Context, bidID uuid.UUID, decision enum.BidDecision) error {
+func (repo *bidRepository) SubmitDecision(ctx context.Context, bidID, employeeID uuid.UUID, decision enum.BidDecision) error {
 	query := goqu.Dialect("postgres").
-		Update("bid").
-		Set(goqu.Record{
-			"decision": decision,
-		}).
-		Where(goqu.Ex{"id": bidID})
+		Insert("bid_employee_decision").
+		Rows(goqu.Record{
+			"bid_id":      bidID,
+			"employee_id": employeeID,
+			"decision":    decision,
+		})
 
 	sql, args, err := query.ToSQL()
 	if err != nil {
