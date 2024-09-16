@@ -5,6 +5,7 @@ import (
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/georgysavva/scany/v2/pgxscan"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
@@ -24,6 +25,29 @@ func NewEmployeeRepository(pool *pgxpool.Pool,
 		pool:   pool,
 		getter: getter,
 	}
+}
+
+func (repo *employeeRepository) GetById(ctx context.Context, id uuid.UUID) (*model.Employee, error) {
+	query := goqu.Dialect("postgres").
+		From("employee").
+		Where(goqu.Ex{"id": id})
+
+	sql, args, err := query.ToSQL()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to build query")
+	}
+
+	var employee model.Employee
+	tr := repo.getter.DefaultTrOrDB(ctx, repo.pool)
+	err = pgxscan.Get(ctx, tr, &employee, sql, args...)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, errors.Wrap(model.ErrUserNotExists, "employee not found")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute query")
+	}
+
+	return &employee, nil
 }
 
 func (repo *employeeRepository) GetByUsername(ctx context.Context, username string) (*model.Employee, error) {
